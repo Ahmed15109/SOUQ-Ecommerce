@@ -1,0 +1,71 @@
+
+@model EcommerceApp.Models.Product
+
+@{
+    ViewData["Title"] = "إنشاء منتج";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">إضافة منتج جديد</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form asp-action="Create" enctype="multipart/form-data">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">اسم المنتج</label>
+                            <input asp-for="Name" class="form-control" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Price" class="form-label">السعر ($)</label>
+                                <input asp-for="Price" class="form-control" type="number" step="0.01" />
+                                <span asp-validation-for="Price" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6">
+                                <label asp-for="CategoryId" class="form-label">القسم</label>
+                                <select asp-for="CategoryId" class="form-select" asp-items="ViewBag.Categories"></select>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                             <label class="form-label">صورة المنتج</label>
+                             <input type="file" name="imageFile" class="form-control" accept=".jpg,.jpeg,.png,.webp" />
+                             <small class="text-muted">الصيغ المسموحة: jpg, jpeg, png, webp</small>
+                             <input type="hidden" asp-for="ImageUrl" /> 
+                             <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">الوصف (اختياري)</label>
+                            <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-check mb-4">
+                            <input class="form-check-input" asp-for="IsFavorite" />
+                            <label class="form-check-label" asp-for="IsFavorite">
+                                تمييز كمفضل
+                            </label>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">العودة للقائمة</a>
+                            <button type="submit" class="btn btn-primary px-4">إنشاء المنتج</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

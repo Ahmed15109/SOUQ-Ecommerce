@@ -1,0 +1,107 @@
+@model EcommerceApp.Models.Order
+
+@{
+    ViewData["Title"] = "تفاصيل الطلب #" + Model.Id;
+}
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>تفاصيل الطلب <span>#@Model.Id</span></h2>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i> العودة للطلبات
+        </a>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">المنتجات</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;"></th>
+                                    <th>المنتج</th>
+                                    <th>الكمية</th>
+                                    <th class="text-end">السعر</th>
+                                    <th class="text-end">الإجمالي</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in Model.OrderItems)
+                                {
+                                    <tr>
+                                        <td class="text-center">
+                                            <img src="@item.ImageUrl" class="rounded border" style="width: 60px; height: 60px; object-fit: cover;">
+                                        </td>
+                                        <td>
+                                            <h6 class="mb-0">@item.ProductName</h6>
+                                        </td>
+                                        <td>x @item.Quantity</td>
+                                        <td class="text-end">$@item.UnitPrice</td>
+                                        <td class="text-end fw-bold">$@item.LineTotal</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">ملخص الطلب</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">تاريخ الطلب</span>
+                        <span class="fw-bold">@Model.CreatedAt.ToString("g")</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">الحالة</span>
+                        <span class="fw-bold">
+                            @Model.Status.ToString()
+                        </span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">المجموع الفرعي</span>
+                        <span>$@ViewBag.Subtotal</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">التوصيل</span>
+                        <span>$@ViewBag.DeliveryFee</span>
+                    </div>
+                    <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                        <span class="fw-bold">الإجمالي</span>
+                        <span class="fw-bold text-primary fs-5">$@ViewBag.Total</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0">عنوان التوصيل</h5>
+                </div>
+                <div class="card-body">
+                    <h6 class="fw-bold">@Model.FullName</h6>
+                    <p class="mb-1 text-muted">@Model.Phone</p>
+                    <hr>
+                    <p class="mb-0">
+                        @Model.City, @Model.Area<br>
+                        @Model.Street, @Model.Building
+                        @if (!string.IsNullOrEmpty(Model.Notes))
+                        {
+                            <br>
+                            <small class="text-muted">ملاحظات: @Model.Notes</small>
+                        }
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

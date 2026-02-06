@@ -1,0 +1,63 @@
+@model EcommerceApp.Models.Category
+
+@{
+    ViewData["Title"] = "تفاصيل القسم";
+    var products = ViewBag.Products as IEnumerable<EcommerceApp.Models.Product>;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2>@Model.Name</h2>
+            <p class="text-muted">تفاصيل القسم</p>
+        </div>
+        <div>
+            <a asp-controller="Products" asp-action="Create" asp-route-categoryId="@Model.Id" class="btn btn-success">
+                <i class="bi bi-plus-lg me-1"></i>إضافة منتج لهذا القسم
+            </a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary ms-2">تعديل</a>
+            <a asp-action="Index" class="btn btn-secondary ms-2">العودة للقائمة</a>
+        </div>
+    </div>
+
+    <h4 class="mb-3">منتجات في @Model.Name</h4>
+    
+    @if (products != null && products.Any())
+    {
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            @foreach (var product in products)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        @if (!string.IsNullOrEmpty(product.ImageUrl))
+                        {
+                            <img src="@product.ImageUrl" class="card-img-top" alt="@product.Name" style="height: 150px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height: 150px;">
+                                <i class="bi bi-image text-muted display-4"></i>
+                            </div>
+                        }
+                        <div class="card-body">
+                            <h6 class="card-title text-truncate" title="@product.Name">@product.Name</h6>
+                            <p class="card-text fw-bold text-primary">@product.Price.ToString("C")</p>
+                            <div class="d-flex justify-content-between">
+                                <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary w-100 me-1">تعديل</a>
+                                <form asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" method="post" class="w-100" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100">حذف</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+             لا توجد منتجات في هذا القسم. اضغط زر "إضافة منتج لهذا القسم" أعلاه لإضافة واحد.
+        </div>
+    }
+</div>

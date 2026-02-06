@@ -1,0 +1,193 @@
+
+@model EcommerceApp.ViewModels.CheckoutViewModel
+@{
+    ViewData["Title"] = "إتمام الشراء";
+}
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/" class="text-decoration-none">الرئيسية</a></li>
+        <li class="breadcrumb-item"><a href="/Cart" class="text-decoration-none">العربة</a></li>
+        <li class="breadcrumb-item active" aria-current="page">إتمام الشراء</li>
+    </ol>
+</nav>
+
+<div class="mb-5">
+    <h2 class="fw-bold">إتمام الشراء</h2>
+    <p class="text-muted">املأ بياناتك لإكمال الطلب.</p>
+</div>
+
+<form asp-action="Submit" method="post">
+    <div class="row">
+        <div class="col-lg-7 mb-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="fw-bold mb-0">بيانات الشحن</h5>
+                </div>
+                <div class="card-body p-4">
+                    @if (Model.UserAddresses.Any())
+                    {
+                        <div class="mb-4 pb-3 border-bottom">
+                            <h6 class="fw-bold mb-3">اختر عنوان توصيل saved</h6>
+                            @foreach (var addr in Model.UserAddresses)
+                            {
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="selectedAddress" id="addr_@addr.Id" value="@addr.Id" @(addr.IsDefault ? "checked" : "")>
+                                    <label class="form-check-label" for="addr_@addr.Id">
+                                        <strong>@addr.City, @addr.Area</strong> - @addr.Street
+                                    </label>
+                                </div>
+                            }
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="radio" name="selectedAddress" id="addr_new" value="new">
+                                <label class="form-check-label text-primary" for="addr_new">
+                                    <i class="bi bi-plus-circle"></i> استخدام عنوان جديد
+                                </label>
+                            </div>
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label">الاسم الكامل</label>
+                        <input asp-for="Name" class="form-control" placeholder="الاسم الكامل" />
+                        <span asp-validation-for="Name" class="text-danger small"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label">رقم الهاتف</label>
+                        <input asp-for="Phone" class="form-control" placeholder="01xxxxxxxxx" />
+                        <span asp-validation-for="Phone" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label asp-for="City" class="form-label">المدينة</label>
+                            <input asp-for="City" class="form-control" placeholder="المدينة" />
+                            <span asp-validation-for="City" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Area" class="form-label">المنطقة</label>
+                            <input asp-for="Area" class="form-control" placeholder="المنطقة" />
+                            <span asp-validation-for="Area" class="text-danger small"></span>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Street" class="form-label">اسم الشارع</label>
+                        <input asp-for="Street" class="form-control" placeholder="اسم الشارع" />
+                        <span asp-validation-for="Street" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Building" class="form-label">رقم المبنى / الشقة</label>
+                        <input asp-for="Building" class="form-control" placeholder="رقم المبنى" />
+                        <span asp-validation-for="Building" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Notes" class="form-label">ملاحظات الطلب (اختياري)</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2" placeholder="هل يوجد تعليمات خاصة للتوصيل؟"></textarea>
+                    </div>
+
+                    <div class="form-check p-3 border rounded bg-light mt-4">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" checked disabled id="cod">
+                        <label class="form-check-label fw-bold" for="cod">
+                            الدفع عند الاستلام
+                        </label>
+                        <div class="text-muted small ms-4">ادفع بأمان عند استلام طلبك.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5 mb-4">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white py-3">
+                     <h5 class="fw-bold mb-0">ملخص الطلب</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="overflow-auto mb-3" style="max-height: 300px;">
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="@item.ImageUrl" class="rounded px-1 border me-2" width="50" height="50" style="object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0 text-truncate" style="max-width: 150px;">@item.ProductName</h6>
+                                    <small class="text-muted">x @item.Quantity</small>
+                                </div>
+                                <div class="fw-bold text-end">
+                                    $@item.Total
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">المجموع الفرعي</span>
+                        <span class="fw-bold">$@Model.Subtotal</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                         <span class="text-muted">رسوم التوصيل</span>
+                        <span class="fw-bold">$@Model.DeliveryFee</span>
+                    </div>
+                     <div class="d-flex justify-content-between mb-4 border-top pt-2">
+                         <span class="fw-bold fs-5">الإجمالي الكلي</span>
+                        <span class="fw-bold fs-5 text-primary">$@Model.GrandTotal</span>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm">
+                        تأكيد الطلب
+                    </button>
+                    <div class="text-center mt-3">
+                         <a href="/Cart" class="text-muted small text-decoration-none">العودة للعربة</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const addresses = @Json.Serialize(Model.UserAddresses);
+            const addressRadios = document.getElementsByName('selectedAddress');
+            
+            function clearForm() {
+                document.getElementById('City').value = '';
+                document.getElementById('Area').value = '';
+                document.getElementById('Street').value = '';
+                document.getElementById('Building').value = '';
+                document.getElementById('Notes').value = '';
+            }
+
+            function fillForm(address) {
+                document.getElementById('City').value = address.city;
+                document.getElementById('Area').value = address.area;
+                document.getElementById('Street').value = address.street;
+                document.getElementById('Building').value = address.building;
+                document.getElementById('Notes').value = address.notes || '';
+            }
+
+            addressRadios.forEach(radio => {
+                radio.addEventListener('change', function() {
+                    const val = this.value;
+                    if (val === 'new') {
+                        clearForm();
+                    } else {
+                        const addr = addresses.find(a => a.id == parseInt(val));
+                        if (addr) fillForm(addr);
+                    }
+                });
+            });
+            
+            const checked = document.querySelector('input[name="selectedAddress"]:checked');
+            if(checked && checked.value !== 'new') {
+                 const addr = addresses.find(a => a.id == parseInt(checked.value));
+                 if (addr) fillForm(addr);
+            }
+        });
+    </script>
+}

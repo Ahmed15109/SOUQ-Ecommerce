@@ -1,0 +1,76 @@
+@model EcommerceApp.Models.Category
+
+@{
+    ViewData["Title"] = "تعديل قسم";
+}
+
+<div class="container mt-4">
+    <h2>تعديل قسم</h2>
+    <hr />
+    <div class="row">
+        <div class="col-md-6">
+            <form asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Id" />
+                
+                <div class="mb-3">
+                    <label asp-for="Name" class="form-label">الاسم</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                @if (Model.IsCore)
+                {
+                    <div class="alert alert-warning mb-3">
+                        <i class="bi bi-lock-fill me-2"></i>
+                        <strong>قسم أساسي (Core Category)</strong>
+                        <p class="mb-0 small">هذا القسم جزء من التصميم الأساسي ولا يمكن تغيير أيقونته أو ألوانه.</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="mb-3">
+                        <label asp-for="IconKey" class="form-label">النسق القديم (Legacy Theme - Optional)</label>
+                        <select asp-for="IconKey" class="form-select">
+                            <option value="">-- اختر النسق (اختياري) --</option>
+                            <option value="produce">خضار وفواكه (Produce)</option>
+                            <option value="pharmacy">صيدلية (Pharmacy)</option>
+                            <option value="supermarket">سوبرماركت (Supermarket)</option>
+                            <option value="restaurant">مطاعم (Restaurant)</option>
+                        </select>
+                        <span asp-validation-for="IconKey" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="IconClass" class="form-label">أيقونة (Bootstrap Icon Class)</label>
+                        <input asp-for="IconClass" class="form-control" placeholder="مثال: bi bi-basket2" />
+                        <div class="form-text">يمكنك اختيار الأيقونات من <a href="https://icons.getbootstrap.com/" target="_blank">Bootstrap Icons</a></div>
+                        <span asp-validation-for="IconClass" class="text-danger"></span>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IconBgColor" class="form-label">لون الخلفية (Background Hex)</label>
+                            <input asp-for="IconBgColor" type="color" class="form-control form-control-color w-100" title="Choose your color">
+                            <span asp-validation-for="IconBgColor" class="text-danger"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="IconColor" class="form-label">لون الأيقونة (Icon Hex)</label>
+                            <input asp-for="IconColor" type="color" class="form-control form-control-color w-100" title="Choose your color">
+                            <span asp-validation-for="IconColor" class="text-danger"></span>
+                        </div>
+                    </div>
+                }
+                
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+                    <a asp-action="Index" class="btn btn-secondary">العودة للقائمة</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,28 @@
+@model EcommerceApp.Models.Category
+
+@{
+    ViewData["Title"] = "حذف القسم";
+}
+
+<div class="container mt-4">
+    <h2>حذف القسم</h2>
+    <div class="alert alert-danger">
+        <h4>هل أنت متأكد أنك تريد حذف هذا القسم؟</h4>
+        <p>قد يؤثر هذا على المنتجات التابعة لهذا القسم.</p>
+    </div>
+    
+    <dl class="row">
+        <dt class = "col-sm-2">
+            الاسم
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <button type="submit" class="btn btn-danger">حذف</button>
+        <a asp-action="Index" class="btn btn-secondary">إلغاء</a>
+    </form>
+</div>

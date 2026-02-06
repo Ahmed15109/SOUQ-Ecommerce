@@ -1,0 +1,133 @@
+@{
+    ViewData["Title"] = "لوحة تحكم المسؤول";
+    var latestOrders = ViewData["LatestOrders"] as IEnumerable<EcommerceApp.Models.Order>;
+    var latestProducts = ViewData["LatestProducts"] as IEnumerable<EcommerceApp.Models.Product>;
+}
+
+<div class="container-fluid py-4">
+    <h1 class="mb-4">لوحة تحكم المسؤول</h1>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-tags me-2"></i>الأقسام</h5>
+                    <h2 class="display-6 fw-bold">@ViewData["CategoriesCount"]</h2>
+                    <a asp-controller="Categories" asp-action="Index" class="text-white text-decoration-none stretched-link small opacity-75">إدارة الأقسام <i class="bi bi-arrow-left"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-box-seam me-2"></i>المنتجات</h5>
+                    <h2 class="display-6 fw-bold">@ViewData["ProductsCount"]</h2>
+                    <a asp-controller="Products" asp-action="Index" class="text-white text-decoration-none stretched-link small opacity-75">إدارة المنتجات <i class="bi bi-arrow-left"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-dark shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-cart me-2"></i>الطلبات</h5>
+                    <h2 class="display-6 fw-bold">@ViewData["OrdersCount"]</h2>
+                    <a asp-controller="Orders" asp-action="Index" class="text-dark text-decoration-none stretched-link small opacity-75">إدارة الطلبات <i class="bi bi-arrow-left"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">أحدث الطلبات</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0 table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>العميل</th>
+                                    <th>الإجمالي</th>
+                                    <th>التاريخ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (latestOrders != null && latestOrders.Any())
+                                {
+                                    foreach (var order in latestOrders)
+                                    {
+                                        <tr>
+                                            <td>#@order.Id</td>
+                                            <td>@order.FullName</td>
+                                            <td>@order.Total.ToString("C")</td>
+                                            <td>@order.CreatedAt.ToShortDateString()</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">لا توجد طلبات</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">أحدث المنتجات</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0 table-hover">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>الاسم</th>
+                                    <th>القسم</th>
+                                    <th>السعر</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (latestProducts != null && latestProducts.Any())
+                                {
+                                    foreach (var product in latestProducts)
+                                    {
+                                        <tr>
+                                            <td>@product.Name</td>
+                                            <td>@product.Category?.Name</td>
+                                            <td>@product.Price.ToString("C")</td>
+                                        </tr>
+                                    }
+                                }
+                                else
+                                {
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">لا توجد منتجات</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="card-footer bg-white border-0 text-center">
+                    <a asp-controller="Products" asp-action="Index" class="btn btn-sm btn-outline-primary">عرض كل المنتجات</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    @if (User.IsInRole("SuperAdmin"))
+    {
+        <div class="mt-4 text-center">
+            <a asp-controller="AdminUsers" asp-action="Index" class="btn btn-dark"><i class="bi bi-shield-lock me-2"></i>إدارة المسؤولين</a>
+        </div>
+    }
+</div>
