@@ -137,8 +137,14 @@
                  iconStyle = "color: #6c757d !important;";
             }
 
+            var cardHref = "/Products?categoryId=" + cat.Id;
+            if (cat.Name == "Pharmacy" || (cat.IconKey != null && cat.IconKey.Equals("pharmacy", StringComparison.OrdinalIgnoreCase)))
+            {
+                cardHref = "/PharmacyRequests/Create";
+            }
+
             <div class="col-6 col-md-3">
-                <a href="/Products?categoryId=@cat.Id" class="text-decoration-none">
+                <a href="@cardHref" class="text-decoration-none">
                     <div class="category-card-simple text-center p-4 rounded-3 bg-white h-100">
                         <div class="mb-3 d-inline-flex justify-content-center align-items-center rounded-circle mx-auto" 
                              style="width: 80px; height: 80px; @bgStyle">

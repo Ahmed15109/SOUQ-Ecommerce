@@ -6,10 +6,19 @@ namespace EcommerceApp.Models
 {
     public enum OrderStatus
     {
+        [Display(Name = "قيد الانتظار")]
         Pending,
+        
+        [Display(Name = "قيد المعالجة")]
         Processing,
+        
+        [Display(Name = "تم الشحن")]
         Shipped,
+        
+        [Display(Name = "تم التسليم")]
         Delivered,
+        
+        [Display(Name = "ملغي")]
         Canceled
     }
 

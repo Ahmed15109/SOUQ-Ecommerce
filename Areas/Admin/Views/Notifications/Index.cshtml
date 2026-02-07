@@ -54,6 +54,12 @@
                                             <i class="bi bi-eye"></i> عرض الطلب
                                         </a>
                                     }
+                                    @if (notification.PharmacyRequestId.HasValue)
+                                    {
+                                        <a asp-area="Admin" asp-controller="PharmacyRequests" asp-action="Details" asp-route-id="@notification.PharmacyRequestId" class="btn btn-sm btn-outline-info mb-2">
+                                            <i class="bi bi-capsule"></i> عرض الروشتة
+                                        </a>
+                                    }
                                     @if (!notification.IsRead)
                                     {
                                         <form asp-action="MarkAsRead" asp-route-id="@notification.Id" method="post" class="d-inline">

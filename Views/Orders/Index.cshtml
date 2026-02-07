@@ -1,3 +1,4 @@
+@using EcommerceApp.Helpers
 @model IEnumerable<EcommerceApp.Models.Order>
 
 @{
@@ -36,24 +37,18 @@
                                 <td>@item.CreatedAt.ToString("yyyy/MM/dd")</td>
                                 <td>@item.City, @item.Area</td>
                                 <td>
-                                    @switch (item.Status)
-                                    {
-                                        case EcommerceApp.Models.OrderStatus.Pending:
-                                            <span class="badge bg-warning text-dark">قيد الانتظار</span>
-                                            break;
-                                        case EcommerceApp.Models.OrderStatus.Processing:
-                                            <span class="badge bg-info text-dark">قيد التجهيز</span>
-                                            break;
-                                        case EcommerceApp.Models.OrderStatus.Shipped:
-                                            <span class="badge bg-primary">تم الشحن</span>
-                                            break;
-                                        case EcommerceApp.Models.OrderStatus.Delivered:
-                                            <span class="badge bg-success">تم التوصيل</span>
-                                            break;
-                                        case EcommerceApp.Models.OrderStatus.Canceled:
-                                            <span class="badge bg-danger">ملغي</span>
-                                            break;
+                                    @{
+                                        var badgeClass = item.Status switch
+                                        {
+                                            EcommerceApp.Models.OrderStatus.Pending => "bg-warning text-dark",
+                                            EcommerceApp.Models.OrderStatus.Processing => "bg-info text-dark",
+                                            EcommerceApp.Models.OrderStatus.Shipped => "bg-primary",
+                                            EcommerceApp.Models.OrderStatus.Delivered => "bg-success",
+                                            EcommerceApp.Models.OrderStatus.Canceled => "bg-danger",
+                                            _ => "bg-secondary"
+                                        };
                                     }
+                                    <span class="badge @badgeClass">@item.Status.GetDisplayName()</span>
                                 </td>
                                 <td class="fw-bold">$@item.Total</td>
                                 <td class="text-end">

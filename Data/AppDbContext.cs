@@ -20,6 +20,8 @@ namespace EcommerceApp.Data
         public DbSet<Cart> Carts { get; set; }
         public DbSet<DbCartItem> DbCartItems { get; set; }
         public DbSet<Notification> Notifications { get; set; }
+        public DbSet<PharmacyRequest> PharmacyRequests { get; set; }
+        public DbSet<PharmacyRequestItem> PharmacyRequestItems { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

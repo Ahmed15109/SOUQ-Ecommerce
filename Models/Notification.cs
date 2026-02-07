@@ -23,6 +23,9 @@ namespace EcommerceApp.Models
         public int? OrderId { get; set; }
         public Order? Order { get; set; }
 
+        public int? PharmacyRequestId { get; set; }
+        public PharmacyRequest? PharmacyRequest { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

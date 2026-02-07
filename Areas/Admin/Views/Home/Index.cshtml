@@ -8,7 +8,7 @@
     <h1 class="mb-4">لوحة تحكم المسؤول</h1>
 
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-primary text-white shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-tags me-2"></i>الأقسام</h5>
@@ -17,7 +17,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-success text-white shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-box-seam me-2"></i>المنتجات</h5>
@@ -26,12 +26,21 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="card bg-warning text-dark shadow-sm h-100">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-cart me-2"></i>الطلبات</h5>
                     <h2 class="display-6 fw-bold">@ViewData["OrdersCount"]</h2>
                     <a asp-controller="Orders" asp-action="Index" class="text-dark text-decoration-none stretched-link small opacity-75">إدارة الطلبات <i class="bi bi-arrow-left"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white shadow-sm h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-capsule me-2"></i>طلبات الصيدلية</h5>
+                    <h2 class="display-6 fw-bold">@ViewData["PharmacyRequestsCount"]</h2>
+                    <a asp-controller="PharmacyRequests" asp-action="Index" class="text-white text-decoration-none stretched-link small opacity-75">إدارة الطلبات <i class="bi bi-arrow-left"></i></a>
                 </div>
             </div>
         </div>

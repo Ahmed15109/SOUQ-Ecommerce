@@ -22,6 +22,7 @@ namespace EcommerceApp.Areas.Admin.Controllers
             ViewData["ProductsCount"] = await _context.Products.CountAsync();
             
             ViewData["OrdersCount"] = await _context.Orders.CountAsync();
+            ViewData["PharmacyRequestsCount"] = await _context.PharmacyRequests.CountAsync();
 
             ViewData["LatestOrders"] = await _context.Orders
                 .OrderByDescending(o => o.CreatedAt)

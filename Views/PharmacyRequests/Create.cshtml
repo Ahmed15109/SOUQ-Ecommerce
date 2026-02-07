@@ -1,0 +1,157 @@
+@model EcommerceApp.ViewModels.PharmacyRequestVM
+@{
+    ViewData["Title"] = "طلب صيدلية";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h4 class="mb-0 fw-bold text-primary"><i class="bi bi-capsule me-2"></i>طلب صيدلية</h4>
+                </div>
+                <div class="card-body p-4">
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <ul class="mb-0">
+                                @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                                {
+                                    <li>@error.ErrorMessage</li>
+                                }
+                            </ul>
+                        </div>
+                    }
+
+                    <form asp-action="Create" enctype="multipart/form-data" method="post" id="pharmacyForm">
+                        
+                        <div class="mb-5">
+                            <h5 class="fw-bold bg-light p-2 rounded mb-3 text-primary">1. تفاصيل الطلب</h5>
+                            
+                            <div class="mb-4 ps-3 border-end border-primary border-3">
+                                <h6 class="fw-bold mb-3">🧾 قائمة الأدوية</h6>
+                                <div id="medicines-container">
+                                    @for (int i = 0; i < Model.Medicines.Count; i++)
+                                    {
+                                        <div class="row g-2 align-items-center mb-2 medicine-row">
+                                            <div class="col-7">
+                                                <input asp-for="Medicines[i].Name" class="form-control" placeholder="اسم الدواء (مطلوب)" />
+                                                <span asp-validation-for="Medicines[i].Name" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-3">
+                                                <input asp-for="Medicines[i].Quantity" type="number" min="1" class="form-control" placeholder="الكمية" />
+                                                <span asp-validation-for="Medicines[i].Quantity" class="text-danger small"></span>
+                                            </div>
+                                            <div class="col-2 text-end">
+                                                @if (i > 0)
+                                                {
+                                                    <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="bi bi-trash"></i></button>
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="add-row-btn">
+                                    <i class="bi bi-plus-lg"></i> إضافة دواء آخر
+                                </button>
+                            </div>
+
+                            <div class="mb-4 ps-3 border-end border-primary border-3">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-image me-2"></i>صورة الروشتة (اختياري)</h6>
+                                <input asp-for="PrescriptionImage" type="file" class="form-control" accept="image/*" />
+                                <div class="form-text text-muted">يمكنك رفع صورة الروشتة بدلاً من كتابة الأسماء يدوياً.</div>
+                            </div>
+
+                            <div class="mb-4 ps-3 border-end border-primary border-3">
+                                <h6 class="fw-bold mb-3"><i class="bi bi-pencil me-2"></i>ملاحظات إضافية</h6>
+                                <textarea asp-for="Notes" class="form-control" rows="3" placeholder="أي تعليمات خاصة..."></textarea>
+                            </div>
+                        </div>
+
+                        <div class="mb-5">
+                            <h5 class="fw-bold bg-light p-2 rounded mb-3 text-primary">2. بيانات التوصيل</h5>
+                            
+                             @if (!User.Identity.IsAuthenticated)
+                            {
+                                <div class="alert alert-info py-2 mb-4 d-flex justify-content-between align-items-center">
+                                    <small><i class="bi bi-info-circle me-1"></i> لديك حساب؟ سجل دخولك لملء البيانات تلقائيًا.</small>
+                                    <a href="/Account/Login?returnUrl=/PharmacyRequests/Create" class="btn btn-sm btn-outline-primary fw-bold">تسجيل الدخول</a>
+                                </div>
+                            }
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label asp-for="FullName" class="form-label fw-bold">الاسم الكامل (اختياري)</label>
+                                    <input asp-for="FullName" class="form-control" placeholder="الاسم" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label asp-for="UserPhone" class="form-label fw-bold">رقم الهاتف <span class="text-danger">*</span></label>
+                                    <input asp-for="UserPhone" class="form-control" placeholder="01xxxxxxxxx" />
+                                    <span asp-validation-for="UserPhone" class="text-danger small"></span>
+                                </div>
+                                <div class="col-12">
+                                    <label asp-for="Address" class="form-label fw-bold">العنوان بالتفصيل <span class="text-danger">*</span></label>
+                                    <textarea asp-for="Address" class="form-control" rows="2" placeholder="المدينة، المنطقة، اسم الشارع، رقم المبنى..."></textarea>
+                                    <span asp-validation-for="Address" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold">إرسال الطلب</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const container = document.getElementById('medicines-container');
+            const addBtn = document.getElementById('add-row-btn');
+
+            addBtn.addEventListener('click', function () {
+                const index = container.querySelectorAll('.medicine-row').length;
+                const newRow = document.createElement('div');
+                newRow.className = 'row g-2 align-items-center mb-2 medicine-row';
+                newRow.innerHTML = `
+                    <div class="col-7">
+                        <input type="text" name="Medicines[${index}].Name" class="form-control" placeholder="اسم الدواء (مطلوب)" />
+                    </div>
+                    <div class="col-3">
+                        <input type="number" min="1" name="Medicines[${index}].Quantity" class="form-control" placeholder="الكمية" />
+                    </div>
+                    <div class="col-2 text-end">
+                        <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="bi bi-trash"></i></button>
+                    </div>
+                `;
+                container.appendChild(newRow);
+            });
+
+            container.addEventListener('click', function (e) {
+                if (e.target.closest('.remove-row')) {
+                    const row = e.target.closest('.medicine-row');
+                 
+                    row.remove();
+                    
+                    reindexRows();
+                }
+            });
+
+            function reindexRows() {
+                const rows = container.querySelectorAll('.medicine-row');
+                rows.forEach((row, index) => {
+                    const nameInput = row.querySelector('input[name^="Medicines"][name$="Name"]');
+                    const qtyInput = row.querySelector('input[name^="Medicines"][name$="Quantity"]');
+                    
+                    if (nameInput) nameInput.name = `Medicines[${index}].Name`;
+                    if (qtyInput) qtyInput.name = `Medicines[${index}].Quantity`;
+                });
+            }
+        });
+    </script>
+}
