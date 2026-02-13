@@ -45,7 +45,7 @@ namespace EcommerceApp.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,CategoryId,IsFavorite")] Product product, IFormFile? imageFile)
+        public async Task<IActionResult> Create([Bind("Id,Name,Description,Price,CategoryId,IsFavorite,SellingMode,MinKg,MaxKg,StepKg,AllowCutting,CuttingFee,PricePerKg")] Product product, IFormFile? imageFile)
         {
             
             ModelState.Remove("ImageUrl");
@@ -91,7 +91,7 @@ namespace EcommerceApp.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,ImageUrl,CategoryId,IsFavorite")] Product product, IFormFile? imageFile)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Description,Price,ImageUrl,CategoryId,IsFavorite,SellingMode,MinKg,MaxKg,StepKg,AllowCutting,CuttingFee,PricePerKg")] Product product, IFormFile? imageFile)
         {
             if (id != product.Id) return NotFound();
 

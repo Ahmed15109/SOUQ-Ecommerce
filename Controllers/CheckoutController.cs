@@ -139,7 +139,12 @@ namespace EcommerceApp.Controllers
                     UnitPrice = item.UnitPriceSnapshot,
                     Quantity = item.Quantity,
                     ImageUrl = item.ImageUrlSnapshot,
-                    LineTotal = item.UnitPriceSnapshot * item.Quantity
+                    LineTotal = item.UnitPriceSnapshot * item.Quantity,
+                    
+                    SelectedWeightKg = item.SelectedWeightKg,
+                    SelectedPricePerKg = item.SelectedPricePerKg,
+                    CuttingSelected = item.CuttingSelected,
+                    CuttingFeeApplied = item.CuttingFeeApplied
                 });
             }
 

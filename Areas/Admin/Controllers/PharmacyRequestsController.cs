@@ -21,7 +21,7 @@ namespace EcommerceApp.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var requests = await _context.PharmacyRequests
-                .Include(r => r.Items) // Include Items
+                .Include(r => r.Items) 
                 .OrderByDescending(r => r.CreatedAt)
                 .ToListAsync();
             return View(requests);
@@ -60,7 +60,6 @@ namespace EcommerceApp.Areas.Admin.Controllers
              request.Status = status;
              await _context.SaveChangesAsync();
 
-             // Notify User if they are registered
              if (!string.IsNullOrEmpty(request.UserId))
              {
                  var notification = new EcommerceApp.Models.Notification

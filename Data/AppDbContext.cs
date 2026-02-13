@@ -22,16 +22,18 @@ namespace EcommerceApp.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<PharmacyRequest> PharmacyRequests { get; set; }
         public DbSet<PharmacyRequestItem> PharmacyRequestItems { get; set; }
+        public DbSet<ProductWeightTier> ProductWeightTiers { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder); 
 
             modelBuilder.Entity<Category>().HasData(
-                new Category { Id = 1, Name = "Vegetables" },
-                new Category { Id = 2, Name = "Dairy" },
-                new Category { Id = 3, Name = "Pharmacy" },
-                new Category { Id = 4, Name = "Food" }
+                new Category { Id = 1, Name = "الخضار" },
+                new Category { Id = 2, Name = "السوبر ماركت" },
+                new Category { Id = 3, Name = "الصيدلية" },
+                new Category { Id = 4, Name = "المطاعم" },
+                new Category { Id = 5, Name = "الدواجن" }
             );
 
         }

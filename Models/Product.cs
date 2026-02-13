@@ -24,5 +24,27 @@ namespace EcommerceApp.Models
         public Category? Category { get; set; }
 
         public bool IsFavorite { get; set; }
+
+        // New fields for ByWeight logic
+        public SellingMode SellingMode { get; set; } = SellingMode.Normal;
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? MinKg { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? MaxKg { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? StepKg { get; set; }
+
+        public bool AllowCutting { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal CuttingFee { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal PricePerKg { get; set; }
+
+        public ICollection<ProductWeightTier> WeightTiers { get; set; } = new List<ProductWeightTier>();
     }
 }

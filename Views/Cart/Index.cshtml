@@ -28,19 +28,32 @@
 else
 {
     <div class="row">
-        <!-- Cart Items -->
         <div class="col-lg-8">
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body">
                     @foreach (var item in Model)
                     {
-                        <div class="row align-items-center mb-3 pb-3 border-bottom cart-item" data-id="@item.ProductId">
+                        <div class="row align-items-center mb-3 pb-3 border-bottom cart-item" data-id="@item.Id">
                             <div class="col-3 col-md-2">
                                 <img src="@item.ImageUrlSnapshot" class="img-fluid rounded-3" alt="@item.ProductNameSnapshot">
                             </div>
                             <div class="col-9 col-md-4">
                                 <h6 class="fw-bold mb-1">@item.ProductNameSnapshot</h6>
-                                <p class="text-muted small mb-0">السعر: <span class="text-primary fw-bold">$@item.UnitPriceSnapshot</span></p>
+                                @if(item.SelectedWeightKg.HasValue)
+                                {
+                                    <div class="small text-muted">
+                                        <div>سعر الكيلو: <span class="fw-bold">$@item.SelectedPricePerKg</span></div>
+                                        @if(item.CuttingFeeApplied > 0)
+                                        {
+                                            <div>خدمة تقطيع: <span class="text-danger">+$@item.CuttingFeeApplied</span></div>
+                                        }
+                                    </div>
+                                    <p class="text-muted small mb-0 mt-1">سعر الوحدة: <span class="text-primary fw-bold">$@item.UnitPriceSnapshot</span></p>
+                                }
+                                else
+                                {
+                                    <p class="text-muted small mb-0">السعر: <span class="text-primary fw-bold">$@item.UnitPriceSnapshot</span></p>
+                                }
                             </div>
                             <div class="col-6 col-md-3 mt-3 mt-md-0">
                                 <div class="input-group input-group-sm" style="width: 120px;">
@@ -61,7 +74,6 @@ else
             </div>
         </div>
 
-        <!-- Order Summary -->
         <div class="col-lg-4">
             <div class="card border-0 shadow-sm">
                 <div class="card-body p-4">

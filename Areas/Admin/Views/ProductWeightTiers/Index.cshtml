@@ -1,0 +1,62 @@
+@model IEnumerable<EcommerceApp.Models.ProductWeightTier>
+@{
+    var product = ViewData["Product"] as EcommerceApp.Models.Product;
+    ViewData["Title"] = "شرائح الوزن - " + (product?.Name ?? "منتج");
+}
+
+<div class="container py-4">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h4 class="fw-bold">شرائح الوزن: @(product?.Name ?? "منتج")</h4>
+        </div>
+        <div class="col-auto">
+             <a asp-action="Create" asp-route-productId="@(product?.Id ?? 0)" class="btn btn-primary">
+                <i class="bi bi-plus-lg"></i> إضافة شريحة
+            </a>
+            <a asp-controller="Products" asp-action="Edit" asp-route-id="@(product?.Id ?? 0)" class="btn btn-outline-secondary">
+                العودة للمنتج
+            </a>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="px-4">من وزن (كجم)</th>
+                        <th>إلى وزن (كجم)</th>
+                        <th>السعر / كجم</th>
+                        <th class="text-end px-4">إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="4" class="text-center py-5 text-muted">
+                                لا توجد شرائح مضافة لهذا المنتج.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="px-4 fw-bold">@item.FromKg</td>
+                            <td class="fw-bold">@item.ToKg</td>
+                            <td class="text-primary fw-bold">@item.PricePerKg ج.م</td>
+                            <td class="text-end px-4">
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" onclick="return confirm('هل أنت متأكد من الحذف؟')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

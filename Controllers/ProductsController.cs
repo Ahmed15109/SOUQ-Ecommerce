@@ -35,5 +35,46 @@ namespace EcommerceApp.Controllers
 
             return View(await productsQuery.ToListAsync());
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ConfigureWeight(int id)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                string returnUrl = Url.Action("ConfigureWeight", "Products", new { id = id });
+                return Redirect("/Account/Login?returnUrl=" + System.Net.WebUtility.UrlEncode(returnUrl));
+            }
+
+            var product = await _context.Products
+                .Include(p => p.WeightTiers)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            if (product.SellingMode != SellingMode.ByWeight)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var viewModel = new EcommerceApp.ViewModels.ProductWeightConfigViewModel
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                ProductImageUrl = product.ImageUrl,
+                SellingMode = product.SellingMode,
+                MinKg = product.MinKg ?? 1,
+                MaxKg = product.MaxKg ?? 10,
+                StepKg = product.StepKg ?? 0.1m,
+                AllowCutting = product.AllowCutting,
+                CuttingFee = product.CuttingFee,
+                PricePerKg = product.PricePerKg > 0 ? product.PricePerKg : product.Price,
+                SelectedWeight = product.MinKg ?? 1
+            };
+
+            return View(viewModel);
+        }
     }
 }

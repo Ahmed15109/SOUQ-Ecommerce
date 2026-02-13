@@ -104,7 +104,19 @@ namespace EcommerceApp.Services
                                 
                                 foreach (var item in order.OrderItems)
                                 {
-                                    table.Cell().Element(CellStyle).Text(item.ProductName);
+                                    table.Cell().Element(CellStyle).Column(col => 
+                                    {
+                                        col.Item().Text(item.ProductName);
+                                        if (item.SelectedWeightKg.HasValue)
+                                        {
+                                            col.Item().Text($"الوزن: {item.SelectedWeightKg} كجم").FontSize(9).FontColor(Colors.Grey.Darken2);
+                                            col.Item().Text($"سعر الكيلو: {item.SelectedPricePerKg} ج.م").FontSize(9).FontColor(Colors.Grey.Darken2);
+                                            if (item.CuttingFeeApplied > 0)
+                                            {
+                                                col.Item().Text($"خدمة تقطيع (#{item.CuttingFeeApplied})").FontSize(9).FontColor(Colors.Grey.Darken2);
+                                            }
+                                        }
+                                    });
                                     table.Cell().Element(CellStyle).AlignCenter().Text($"{item.UnitPrice:N2} ج.م");
                                     table.Cell().Element(CellStyle).AlignCenter().Text(item.Quantity.ToString());
                                     table.Cell().Element(CellStyle).AlignCenter().Text($"{item.LineTotal:N2} ج.م");

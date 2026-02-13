@@ -14,5 +14,10 @@ namespace EcommerceApp.Models
         public string ImageUrl { get; set; } = string.Empty;
 
         public decimal Total => Price * Quantity;
+
+        public decimal? SelectedWeightKg { get; set; }
+        public decimal? SelectedPricePerKg { get; set; }
+        public bool? CuttingSelected { get; set; }
+        public decimal CuttingFeeApplied { get; set; }
     }
 }

@@ -9,21 +9,18 @@ namespace EcommerceApp.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        public string? UserId { get; set; } // Nullable for guests if we allow guest checkout, but usually we prefer logged in. 
-                                            // Requirements said "string? if user logged in, else null"
+        public string? UserId { get; set; }
 
         public string? UserPhone { get; set; }
         
         [Required]
-        public string FullName { get; set; } // For guest or overriding user name
+        public string FullName { get; set; } 
 
         [Required]
-        public string Address { get; set; } = string.Empty; // Full address string
+        public string Address { get; set; } = string.Empty; 
+
+
         
-
-
-        // Replaced Json with Relational Table
-        // public string MedicinesJson { get; set; } = "[]"; 
         public ICollection<PharmacyRequestItem> Items { get; set; } = new List<PharmacyRequestItem>();
 
         public string? PrescriptionImagePath { get; set; }

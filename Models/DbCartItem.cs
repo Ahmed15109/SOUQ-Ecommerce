@@ -17,5 +17,16 @@ namespace EcommerceApp.Models
         
         public string ProductNameSnapshot { get; set; } = string.Empty;
         public string ImageUrlSnapshot { get; set; } = string.Empty;
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? SelectedWeightKg { get; set; }
+        
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? SelectedPricePerKg { get; set; }
+        
+        public bool? CuttingSelected { get; set; }
+        
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal CuttingFeeApplied { get; set; }
     }
 }

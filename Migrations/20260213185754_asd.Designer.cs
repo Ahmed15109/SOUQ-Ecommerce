@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260207212528_UpdatePharmacyStatusAndQuantity")]
-    partial class UpdatePharmacyStatusAndQuantity
+    [Migration("20260213185754_asd")]
+    partial class asd
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -194,25 +194,31 @@ namespace EcommerceApp.Migrations
                         {
                             Id = 1,
                             IsCore = false,
-                            Name = "Vegetables"
+                            Name = "الخضار"
                         },
                         new
                         {
                             Id = 2,
                             IsCore = false,
-                            Name = "Dairy"
+                            Name = "السوبر ماركت"
                         },
                         new
                         {
                             Id = 3,
                             IsCore = false,
-                            Name = "Pharmacy"
+                            Name = "الصيدلية"
                         },
                         new
                         {
                             Id = 4,
                             IsCore = false,
-                            Name = "Food"
+                            Name = "المطاعم"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            IsCore = false,
+                            Name = "الدواجن"
                         });
                 });
 
@@ -227,6 +233,12 @@ namespace EcommerceApp.Migrations
                     b.Property<int>("CartId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("CuttingFeeApplied")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool?>("CuttingSelected")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ImageUrlSnapshot")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -240,6 +252,12 @@ namespace EcommerceApp.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("SelectedPricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SelectedWeightKg")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPriceSnapshot")
                         .HasColumnType("decimal(18,2)");
@@ -365,6 +383,12 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("CuttingFeeApplied")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool?>("CuttingSelected")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -384,6 +408,12 @@ namespace EcommerceApp.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("SelectedPricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SelectedWeightKg")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
@@ -467,8 +497,14 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AllowCutting")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("CuttingFee")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -481,6 +517,12 @@ namespace EcommerceApp.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("bit");
 
+                    b.Property<decimal?>("MaxKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -488,11 +530,47 @@ namespace EcommerceApp.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("PricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("SellingMode")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("StepKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.ProductWeightTier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("FromKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ToKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductWeightTiers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -724,6 +802,17 @@ namespace EcommerceApp.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("EcommerceApp.Models.ProductWeightTier", b =>
+                {
+                    b.HasOne("EcommerceApp.Models.Product", "Product")
+                        .WithMany("WeightTiers")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -795,6 +884,11 @@ namespace EcommerceApp.Migrations
             modelBuilder.Entity("EcommerceApp.Models.PharmacyRequest", b =>
                 {
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.Product", b =>
+                {
+                    b.Navigation("WeightTiers");
                 });
 #pragma warning restore 612, 618
         }

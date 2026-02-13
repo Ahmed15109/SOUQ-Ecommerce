@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace EcommerceApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260203175043_FixPendingModelChanges")]
-    partial class FixPendingModelChanges
+    [Migration("20260213174932_UpdateCategoryNames")]
+    partial class UpdateCategoryNames
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -166,6 +166,21 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("IconBgColor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconColor")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IconKey")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCore")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -178,22 +193,32 @@ namespace EcommerceApp.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Vegetables"
+                            IsCore = false,
+                            Name = "الخضار"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Dairy"
+                            IsCore = false,
+                            Name = "السوبر ماركت"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Pharmacy"
+                            IsCore = false,
+                            Name = "الصيدلية"
                         },
                         new
                         {
                             Id = 4,
-                            Name = "Food"
+                            IsCore = false,
+                            Name = "المطاعم"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            IsCore = false,
+                            Name = "الدواجن"
                         });
                 });
 
@@ -208,6 +233,12 @@ namespace EcommerceApp.Migrations
                     b.Property<int>("CartId")
                         .HasColumnType("int");
 
+                    b.Property<decimal>("CuttingFeeApplied")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool?>("CuttingSelected")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ImageUrlSnapshot")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -221,6 +252,12 @@ namespace EcommerceApp.Migrations
 
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
+
+                    b.Property<decimal?>("SelectedPricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SelectedWeightKg")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("UnitPriceSnapshot")
                         .HasColumnType("decimal(18,2)");
@@ -256,6 +293,9 @@ namespace EcommerceApp.Migrations
                     b.Property<int?>("OrderId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("PharmacyRequestId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -266,6 +306,8 @@ namespace EcommerceApp.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("OrderId");
+
+                    b.HasIndex("PharmacyRequestId");
 
                     b.HasIndex("UserId");
 
@@ -341,6 +383,12 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<decimal>("CuttingFeeApplied")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool?>("CuttingSelected")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -361,6 +409,12 @@ namespace EcommerceApp.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
+                    b.Property<decimal?>("SelectedPricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SelectedWeightKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("UnitPrice")
                         .HasColumnType("decimal(18,2)");
 
@@ -371,6 +425,70 @@ namespace EcommerceApp.Migrations
                     b.ToTable("OrderItems");
                 });
 
+            modelBuilder.Entity("EcommerceApp.Models.PharmacyRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PrescriptionImagePath")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("PharmacyRequests");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.PharmacyRequestItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("MedicineName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PharmacyRequestId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PharmacyRequestId");
+
+                    b.ToTable("PharmacyRequestItems");
+                });
+
             modelBuilder.Entity("EcommerceApp.Models.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -379,8 +497,14 @@ namespace EcommerceApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("AllowCutting")
+                        .HasColumnType("bit");
+
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<decimal>("CuttingFee")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -393,6 +517,12 @@ namespace EcommerceApp.Migrations
                     b.Property<bool>("IsFavorite")
                         .HasColumnType("bit");
 
+                    b.Property<decimal?>("MaxKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -400,11 +530,44 @@ namespace EcommerceApp.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("SellingMode")
+                        .HasColumnType("int");
+
+                    b.Property<decimal?>("StepKg")
+                        .HasColumnType("decimal(18,2)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.ProductWeightTier", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("FromKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("PricePerKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("ToKg")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductWeightTiers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -579,11 +742,17 @@ namespace EcommerceApp.Migrations
                         .WithMany()
                         .HasForeignKey("OrderId");
 
+                    b.HasOne("EcommerceApp.Models.PharmacyRequest", "PharmacyRequest")
+                        .WithMany()
+                        .HasForeignKey("PharmacyRequestId");
+
                     b.HasOne("EcommerceApp.Models.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("Order");
+
+                    b.Navigation("PharmacyRequest");
 
                     b.Navigation("User");
                 });
@@ -608,6 +777,17 @@ namespace EcommerceApp.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("EcommerceApp.Models.PharmacyRequestItem", b =>
+                {
+                    b.HasOne("EcommerceApp.Models.PharmacyRequest", "PharmacyRequest")
+                        .WithMany("Items")
+                        .HasForeignKey("PharmacyRequestId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("PharmacyRequest");
+                });
+
             modelBuilder.Entity("EcommerceApp.Models.Product", b =>
                 {
                     b.HasOne("EcommerceApp.Models.Category", "Category")
@@ -617,6 +797,17 @@ namespace EcommerceApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.ProductWeightTier", b =>
+                {
+                    b.HasOne("EcommerceApp.Models.Product", "Product")
+                        .WithMany("WeightTiers")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -685,6 +876,16 @@ namespace EcommerceApp.Migrations
             modelBuilder.Entity("EcommerceApp.Models.Order", b =>
                 {
                     b.Navigation("OrderItems");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.PharmacyRequest", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("EcommerceApp.Models.Product", b =>
+                {
+                    b.Navigation("WeightTiers");
                 });
 #pragma warning restore 612, 618
         }

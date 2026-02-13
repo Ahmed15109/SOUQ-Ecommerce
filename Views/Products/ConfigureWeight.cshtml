@@ -1,0 +1,207 @@
+@model EcommerceApp.ViewModels.ProductWeightConfigViewModel
+
+@{
+    ViewData["Title"] = "تحديد الوزن - " + Model.ProductName;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 rounded-4 overflow-hidden">
+                <div class="row g-0">
+                    <div class="col-md-5">
+                        <img src="@Model.ProductImageUrl" class="img-fluid h-100 w-100 object-fit-cover" alt="@Model.ProductName" style="min-height: 300px;">
+                    </div>
+                    <div class="col-md-7">
+                        <div class="card-body p-4">
+                            <h3 class="fw-bold mb-3">@Model.ProductName</h3>
+                            
+                            <div class="alert alert-info py-2 small">
+                                <i class="bi bi-info-circle me-1"></i>
+                                هذا المنتج يباع بالوزن. يرجى تحديد الوزن المطلوب.
+                            </div>
+
+                            <form id="weightForm">
+                                <input type="hidden" id="maxKg" value="@Model.MaxKg" />
+                                <input type="hidden" id="minKg" value="@Model.MinKg" />
+                                <input type="hidden" id="stepKg" value="@Model.StepKg" />
+                                <input type="hidden" id="pricePerKg" value="@Model.PricePerKg" />
+                                <input type="hidden" id="cuttingFee" value="@Model.CuttingFee" />
+                                <input type="hidden" id="productId" value="@Model.ProductId" />
+                                
+                                <div class="mb-4">
+                                    <label asp-for="SelectedWeight" class="form-label fw-bold">الوزن المطلوب (كجم)</label>
+                                    <div class="input-group">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="adjustWeight(-1)">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <input asp-for="SelectedWeight" type="text" inputmode="decimal" class="form-control text-center fs-5 fw-bold" 
+                                               id="weightInput">
+                                        <button type="button" class="btn btn-outline-secondary" onclick="adjustWeight(1)">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                        <span class="input-group-text">كجم</span>
+                                    </div>
+                                    <div class="form-text text-muted">
+                                        الوزن المتاح: من @Model.MinKg إلى @Model.MaxKg كجم (زيادة @Model.StepKg)
+                                    </div>
+                                </div>
+
+                                @if (Model.AllowCutting)
+                                {
+                                    <div class="mb-4">
+                                        <div class="form-check form-switch p-3 bg-light rounded-3 border">
+                                            <input class="form-check-input float-end ms-0 me-3" type="checkbox" id="cuttingCheck">
+                                            <label class="form-check-label fw-bold me-5" for="cuttingCheck">
+                                                تنظيف وتقطيع (+@Model.CuttingFee ج.م)
+                                            </label>
+                                        </div>
+                                    </div>
+                                }
+
+                                <div class="bg-light p-3 rounded-3 mb-4 border">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">سعر الكيلو:</span>
+                                        <span class="fw-bold">@Model.PricePerKg ج.م</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span class="text-muted">سعر المنتج:</span>
+                                        <span class="fw-bold" id="productPrice">0.00 ج.م</span>
+                                    </div>
+                                    @if(Model.AllowCutting)
+                                    {
+                                        <div class="d-flex justify-content-between mb-2 text-muted" id="cuttingRow" style="display:none !important">
+                                            <span>رسوم التقطيع:</span>
+                                            <span>@Model.CuttingFee ج.م</span>
+                                        </div>
+                                    }
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 mb-0">الإجمالي:</span>
+                                        <span class="h4 mb-0 text-primary fw-bold" id="totalPrice">0.00 ج.م</span>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary w-100 py-2 fs-5 fw-bold rounded-pill" onclick="submitWeightItem()">
+                                    <i class="bi bi-cart-plus me-2"></i> إضافة للسلة
+                                </button>
+                                <a href="javascript:history.back()" class="btn btn-link w-100 text-decoration-none mt-2 text-muted">إلغاء وعودة</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Helper to parse numbers that might be in Arabic format or use commas
+        function parseLocaleNumber(stringNumber) {
+            if (!stringNumber) return 0;
+            stringNumber = stringNumber.toString();
+            
+            // Replace Arabic/Persian digits
+            const map = ["٠","١","٢","٣","٤","٥","٦","٧","٨","٩"];
+            for (let i = 0; i < 10; i++) {
+                stringNumber = stringNumber.replace(new RegExp(map[i], "g"), i);
+            }
+            
+            // Replace comma with dot
+            stringNumber = stringNumber.replace(/,/g, ".");
+            stringNumber = stringNumber.replace(/٫/g, "."); // Arabic decimal separator
+            
+            return parseFloat(stringNumber);
+        }
+
+        const pricePerKg = parseLocaleNumber(document.getElementById('pricePerKg').value);
+        const step = parseLocaleNumber(document.getElementById('stepKg').value);
+        const min = parseLocaleNumber(document.getElementById('minKg').value);
+        const max = parseLocaleNumber(document.getElementById('maxKg').value);
+        const cuttingFee = parseLocaleNumber(document.getElementById('cuttingFee').value);
+        
+        const weightInput = document.getElementById('weightInput');
+        const cuttingCheck = document.getElementById('cuttingCheck');
+        
+        function updateCalculations() {
+            let val = weightInput.value;
+            let weight = parseLocaleNumber(val);
+            
+            if (isNaN(weight)) weight = 0; // Don't reset to min while typing
+            
+            // Simple calculation: weight × pricePerKg
+            const productPrice = weight * pricePerKg;
+            let total = productPrice;
+            
+            if (cuttingCheck && cuttingCheck.checked) {
+                total += cuttingFee;
+                if(document.getElementById('cuttingRow'))
+                    document.getElementById('cuttingRow').style.setProperty('display', 'flex', 'important');
+            } else if (cuttingCheck) {
+                if(document.getElementById('cuttingRow'))
+                    document.getElementById('cuttingRow').style.setProperty('display', 'none', 'important');
+            }
+
+            // Display using English digits for consistency in price
+            document.getElementById('productPrice').innerText = productPrice.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ج.م';
+            document.getElementById('totalPrice').innerText = total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ج.م';
+        }
+
+        function adjustWeight(direction) {
+            let currentStr = weightInput.value;
+            let current = parseLocaleNumber(currentStr);
+            if (isNaN(current)) current = min;
+            
+            let newVal = current + (direction * step);
+            // Float precision fix
+            newVal = Math.round(newVal * 100) / 100;
+            
+            // Enforce limits
+            if (newVal < min) newVal = min;
+            if (newVal > max) newVal = max;
+            
+            // Update input with simple English format to avoid confusion during auto-updates
+            weightInput.value = newVal;
+            updateCalculations();
+        }
+
+        weightInput.addEventListener('input', updateCalculations);
+        if(cuttingCheck) cuttingCheck.addEventListener('change', updateCalculations);
+
+        // Init
+        updateCalculations();
+
+        function submitWeightItem() {
+            const productId = document.getElementById('productId').value;
+            const weight = parseLocaleNumber(weightInput.value);
+            const isCutting = cuttingCheck ? cuttingCheck.checked : false;
+
+            // Basic validation
+            if (isNaN(weight) || weight < min || weight > max) {
+                alert('الوزن المختار غير صحيح أو خارج النطاق المسموح (' + min + ' - ' + max + ')');
+                return;
+            }
+
+            $.post('/Cart/AddWeightItem', { 
+                productId: productId, 
+                weight: weight, // jQuery usually sends this as standard number (dot separator)
+                isCutting: isCutting
+            })
+            .done(function(data) {
+                if(data.success) {
+                    window.location.href = '/Cart';
+                } else if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('حدث خطأ أثناء الإضافة للسلة: ' + (data.message || ''));
+                }
+            })
+            .fail(function() {
+                // If the server returns 401 or similar, we might land here.
+                // ideally the JSON response above handles it, but just in case:
+                alert('حدث خطأ في الاتصال بالسيرفر');
+            });
+        }
+    </script>
+}

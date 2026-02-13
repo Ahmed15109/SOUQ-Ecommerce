@@ -68,6 +68,47 @@
                             </label>
                         </div>
 
+                        <div class="mb-3">
+                            <label asp-for="SellingMode" class="form-label fw-bold">نظام البيع</label>
+                            <select asp-for="SellingMode" class="form-select" asp-items="Html.GetEnumSelectList<EcommerceApp.Models.SellingMode>()" id="sellingModeSelect"></select>
+                            <span asp-validation-for="SellingMode" class="text-danger"></span>
+                        </div>
+
+                        <div id="weightConfig" style="display:none;" class="border p-3 rounded mb-4 bg-light">
+                            <h6 class="fw-bold mb-3 text-primary">إعدادات البيع بالوزن</h6>
+                            <div class="row">
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="MinKg" class="form-label">أقل وزن (كجم)</label>
+                                    <input asp-for="MinKg" class="form-control" type="number" step="0.1" />
+                                    <span asp-validation-for="MinKg" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="MaxKg" class="form-label">أقصى وزن (كجم)</label>
+                                    <input asp-for="MaxKg" class="form-control" type="number" step="0.1" />
+                                    <span asp-validation-for="MaxKg" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="StepKg" class="form-label">خطوة الزيادة</label>
+                                    <input asp-for="StepKg" class="form-control" type="number" step="0.1" />
+                                    <span asp-validation-for="StepKg" class="text-danger"></span>
+                                </div>
+                                <div class="col-md-3 mb-3">
+                                    <label asp-for="PricePerKg" class="form-label fw-bold text-primary">سعر الكيلو</label>
+                                    <input asp-for="PricePerKg" class="form-control" type="number" step="0.01" />
+                                    <span asp-validation-for="PricePerKg" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" asp-for="AllowCutting" id="allowCuttingCheck"/>
+                                <label class="form-check-label" asp-for="AllowCutting">إتاحة التنظيف والتقطيع</label>
+                            </div>
+                             <div class="mb-3" id="cuttingFeeDiv" style="display:none;">
+                                <label asp-for="CuttingFee" class="form-label">رسوم التقطيع</label>
+                                <input asp-for="CuttingFee" class="form-control" type="number" step="0.5" />
+                                <span asp-validation-for="CuttingFee" class="text-danger"></span>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between">
                             <a asp-action="Index" class="btn btn-outline-secondary">العودة للقائمة</a>
                             <button type="submit" class="btn btn-primary px-4">حفظ التغييرات</button>
@@ -81,4 +122,31 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function() {
+            function toggleWeightFields() {
+                var mode = $('#sellingModeSelect').val();
+                if (mode == '1') { 
+                    $('#weightConfig').slideDown();
+                } else {
+                    $('#weightConfig').slideUp();
+                }
+            }
+
+            $('#sellingModeSelect').change(toggleWeightFields);
+            toggleWeightFields(); 
+
+             $('#allowCuttingCheck').change(function() {
+                if($(this).is(':checked')) {
+                    $('#cuttingFeeDiv').slideDown();
+                } else {
+                    $('#cuttingFeeDiv').slideUp();
+                }
+            });
+            
+            if($('#allowCuttingCheck').is(':checked')) {
+                 $('#cuttingFeeDiv').show();
+            }
+        });
+    </script>
 }

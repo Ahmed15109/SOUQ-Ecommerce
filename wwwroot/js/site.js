@@ -58,7 +58,7 @@ $(document).ready(function () {
             var icon = btn.find('i');
             var isNewBtn = icon.hasClass('bi-cart-plus');
             var originalIconClass = isNewBtn ? 'bi-cart-plus' : 'bi-plus-lg';
-            
+
             icon.removeClass(originalIconClass).addClass('bi-check-lg');
 
             $.post('/Cart/AddToCart', { id: productId }, function (response) {
@@ -67,7 +67,19 @@ $(document).ready(function () {
                     setTimeout(function () {
                         icon.removeClass('bi-check-lg').addClass(originalIconClass);
                     }, 1000);
+                } else {
+                    // Handle error (e.g., ByWeight product)
+                    icon.removeClass('bi-check-lg').addClass(originalIconClass);
+                    if (response.message) {
+                        alert(response.message);
+                    }
+                    if (response.redirect) {
+                        window.location.href = response.redirect;
+                    }
                 }
+            }).fail(function () {
+                icon.removeClass('bi-check-lg').addClass(originalIconClass);
+                alert('حدث خطأ في الاتصال');
             });
         }
     });
@@ -89,7 +101,7 @@ $(document).ready(function () {
                 input.val(newQty);
                 row.find('.item-total').text('$' + response.itemTotal.toFixed(2));
                 $('#cart-subtotal').text('$' + response.cartTotal.toFixed(2));
-                $('#cart-total').text('$' + response.cartTotal.toFixed(2));
+                $('#cart-total').text('$' + response.finalTotal.toFixed(2));
                 $('#cart-count').text(response.count);
                 $('.bi-cart3').next('.badge').text(response.count);
             }
@@ -108,7 +120,7 @@ $(document).ready(function () {
                     if ($('.cart-item').length === 0) location.reload();
                 });
                 $('#cart-subtotal').text('$' + response.cartTotal.toFixed(2));
-                $('#cart-total').text('$' + response.cartTotal.toFixed(2));
+                $('#cart-total').text('$' + response.finalTotal.toFixed(2));
                 $('.bi-cart3').next('.badge').text(response.count);
                 $('#cart-count').text(response.count);
             }

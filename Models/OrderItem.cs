@@ -21,5 +21,16 @@ namespace EcommerceApp.Models
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal LineTotal { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? SelectedWeightKg { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal? SelectedPricePerKg { get; set; }
+
+        public bool? CuttingSelected { get; set; }
+
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal CuttingFeeApplied { get; set; }
     }
 }

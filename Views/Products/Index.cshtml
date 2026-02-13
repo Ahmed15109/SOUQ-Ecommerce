@@ -33,21 +33,58 @@ else
             <div class="col">
                 <div class="card h-100 border-0 shadow-sm product-card">
                     <div class="position-relative">
-                        <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                        @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                        {
+                            <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id">
+                                <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                            </a>
+                        }
+                        else
+                        {
+                            <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                        }
                         <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-2 favorite-btn @(product.IsFavorite ? "text-danger" : "text-muted")" data-id="@product.Id">
                             <i class="bi @(product.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
                         </button>
                     </div>
                     <div class="card-body pt-0">
-                         <p class="text-muted small mb-1">
+                        <p class="text-muted small mb-1">
                             @categoryName
                         </p>
-                        <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
-                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fs-5 fw-bold text-primary">$@product.Price</span>
-                            <button class="btn btn-primary rounded-circle btn-sm p-2">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
+                        @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                        {
+                            <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id" class="text-decoration-none text-dark">
+                                <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
+                            </a>
+                        }
+                        else
+                        {
+                            <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
+                        }
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <span class="fs-5 fw-bold text-primary">
+                                @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                                {
+                                    <span>@product.PricePerKg ج.م/كجم</span>
+                                }
+                                else
+                                {
+                                    <span>@product.Price ج.م</span>
+                                }
+                            </span>
+                            
+                            @if (product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                            {
+                                <a asp-action="ConfigureWeight" asp-route-id="@product.Id" class="btn btn-warning btn-sm px-3 rounded-3 text-white">
+                                    <i class="bi bi-gear-fill me-1"></i> اختيار الوزن
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary rounded-circle btn-sm p-2 add-to-cart-btn" data-id="@product.Id">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>

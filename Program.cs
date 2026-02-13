@@ -4,6 +4,8 @@ using EcommerceApp.Data;
 using EcommerceApp.Models;
 using EcommerceApp.Services;
 using QuestPDF.Infrastructure;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+
 
 QuestPDF.Settings.License = LicenseType.Community;
 
@@ -34,7 +36,10 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 
     builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-    builder.Services.AddControllersWithViews()
+    builder.Services.AddControllersWithViews(options =>
+    {
+        options.ModelBinderProviders.Insert(0, new EcommerceApp.Helpers.DecimalModelBinderProvider());
+    })
         .AddJsonOptions(options =>
         {
             options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;

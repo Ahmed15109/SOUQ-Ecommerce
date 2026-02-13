@@ -173,7 +173,16 @@
             <div class="col">
                 <div class="card h-100 border-0 shadow-sm product-card">
                     <div class="position-relative">
-                        <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                        @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                        {
+                            <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id">
+                                <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                            </a>
+                        }
+                        else
+                        {
+                            <img src="@product.ImageUrl" class="card-img-top p-3 rounded-4" alt="@product.Name" style="object-fit: cover; height: 200px;">
+                        }
                         <button class="btn btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-3 p-2 favorite-btn @(product.IsFavorite ? "text-danger" : "text-muted")" data-id="@product.Id">
                             <i class="bi @(product.IsFavorite ? "bi-heart-fill" : "bi-heart")"></i>
                         </button>
@@ -185,10 +194,20 @@
                         <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
                         <div class="d-flex justify-content-between align-items-center mt-3">
                             <span class="fs-5 fw-bold text-primary">$@product.Price</span>
-                            <button class="btn btn-primary btn-sm rounded-pill add-to-cart-btn px-3" data-id="@product.Id">
-                                <i class="bi bi-cart-plus"></i>
-                                <span class="add-to-cart-text me-1">أضف للسلة</span>
-                            </button>
+                            @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
+                            {
+                                <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id" class="btn btn-warning btn-sm rounded-pill px-3 text-white">
+                                    <i class="bi bi-gear-fill"></i>
+                                    <span class="me-1">وزن</span>
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary btn-sm rounded-pill add-to-cart-btn px-3" data-id="@product.Id">
+                                    <i class="bi bi-cart-plus"></i>
+                                    <span class="add-to-cart-text me-1">أضف للسلة</span>
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
