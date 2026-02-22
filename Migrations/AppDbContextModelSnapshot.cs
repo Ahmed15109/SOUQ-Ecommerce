@@ -80,6 +80,7 @@ namespace EcommerceApp.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<bool>("EmailConfirmed")
+
                         .HasColumnType("bit");
 
                     b.Property<string>("FullName")

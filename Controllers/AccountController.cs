@@ -136,5 +136,93 @@ namespace EcommerceApp.Controllers
         {
             return View();
         }
+
+        // Google external login
+       
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ExternalLogin(string provider, string? returnUrl = null)
+        {
+            var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account", new { returnUrl });
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
+            return Challenge(properties, provider);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ExternalLoginCallback(string? returnUrl = null, string? remoteError = null)
+        {
+            if (remoteError != null)
+            {
+                ModelState.AddModelError(string.Empty, $"خطأ من مزوّد الخدمة: {remoteError}");
+                return RedirectToAction(nameof(Login));
+            }
+
+            var info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null)
+                return RedirectToAction(nameof(Login));
+
+            var signInResult = await _signInManager.ExternalLoginSignInAsync(
+                info.LoginProvider, info.ProviderKey, isPersistent: false, bypassTwoFactor: true);
+
+            if (signInResult.Succeeded)
+            {
+                var existingUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
+                return await RedirectAfterLogin(existingUser!, returnUrl);
+            }
+
+           
+            var email = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value
+                     ?? info.Principal.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            if (string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError(string.Empty, "لم يتم الحصول على بيانات كافية من Google. يرجى المحاولة مرة أخرى.");
+                return RedirectToAction(nameof(Login));
+            }
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                var name = info.Principal.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value ?? email;
+                user = new ApplicationUser
+                {
+                    UserName = email,
+                    Email    = email,
+                    FullName = name
+                };
+                var createResult = await _userManager.CreateAsync(user);
+                if (!createResult.Succeeded)
+                {
+                    ModelState.AddModelError(string.Empty, "حدث خطأ أثناء إنشاء الحساب.");
+                    return RedirectToAction(nameof(Login));
+                }
+                await _userManager.AddToRoleAsync(user, "User");
+            }
+
+            await _userManager.AddLoginAsync(user, info);
+
+            return await RedirectAfterLogin(user, returnUrl);
+        }
+
+        private async Task<IActionResult> RedirectAfterLogin(ApplicationUser user, string? returnUrl)
+        {
+            var claims = new List<System.Security.Claims.Claim>
+            {
+                new System.Security.Claims.Claim(System.Security.Claims.ClaimTypes.GivenName, user.FullName ?? "")
+            };
+            await _signInManager.SignInWithClaimsAsync(user, isPersistent: false, claims);
+            HttpContext.Session.SetString("SessionUserId", user.Id);
+
+            var roles = await _userManager.GetRolesAsync(user);
+            if (roles.Contains("Admin") || roles.Contains("SuperAdmin"))
+                return RedirectToAction("Index", "Home", new { area = "Admin" });
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl);
+
+            return RedirectToAction("Index", "Home");
+        }
     }
 }

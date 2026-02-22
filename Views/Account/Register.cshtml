@@ -53,6 +53,22 @@
                         </div>
                     </form>
 
+                    <div class="d-flex align-items-center my-3">
+                        <hr class="flex-grow-1" />
+                        <span class="mx-2 text-muted small">أو</span>
+                        <hr class="flex-grow-1" />
+                    </div>
+
+                    <form asp-action="ExternalLogin" asp-controller="Account" method="post">
+                        <input type="hidden" name="provider" value="Google" />
+                        <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-outline-dark btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
+                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="22" height="22" alt="Google" />
+                            المتابعة باستخدام  Google
+                        </button>
+                    </form>
+
                     <div class="text-center mt-4">
                         <p class="mb-0">لديك حساب بالفعل؟ <a asp-action="Login" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="text-decoration-none fw-bold">سجل الدخول هنا</a></p>
                     </div>
