@@ -1,0 +1,44 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+          cache: true
+          cache-dependency-path: |
+            packages.lock.json
+            tests/EcommerceApp.Tests/packages.lock.json
+
+      - name: Restore locked dependencies
+        run: dotnet restore EcommerceApp.sln --locked-mode
+
+      - name: Check patch whitespace
+        run: git diff --check
+
+      - name: Build
+        run: dotnet build EcommerceApp.sln --configuration Release --no-restore
+
+      - name: Test
+        run: dotnet test EcommerceApp.sln --configuration Release --no-build --no-restore --logger "console;verbosity=normal"
+
+      - name: Publish application
+        run: dotnet publish EcommerceApp.csproj --configuration Release --no-build --no-restore --output artifacts/publish

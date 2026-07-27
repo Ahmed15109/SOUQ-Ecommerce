@@ -43,6 +43,14 @@
                         </div>
                     </form>
 
+                    <div class="text-center mt-3">
+                        <a asp-action="ForgotPassword">نسيت كلمة المرور؟</a>
+                        <span class="mx-2 text-muted">|</span>
+                        <a asp-action="ResendConfirmation">إعادة إرسال تأكيد البريد</a>
+                    </div>
+
+                    @if (ViewData["GoogleEnabled"] as bool? == true)
+                    {
                     <div class="d-flex align-items-center my-3">
                         <hr class="flex-grow-1" />
                         <span class="mx-2 text-muted small">أو</span>
@@ -54,10 +62,11 @@
                         <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
                         @Html.AntiForgeryToken()
                         <button type="submit" class="btn btn-outline-dark btn-lg w-100 d-flex align-items-center justify-content-center gap-2">
-                            <img src="https://www.svgrepo.com/show/475656/google-color.svg" width="22" height="22" alt="Google" />
+                            <i class="bi bi-google" aria-hidden="true"></i>
                             المتابعة باستخدام Google
                         </button>
                     </form>
+                    }
 
                     <div class="text-center mt-3">
                         <p class="mb-0">ليس لديك حساب؟ <a asp-action="Register" asp-route-returnUrl="@ViewData["ReturnUrl"]" class="text-decoration-none fw-bold">إنشاء حساب</a></p>

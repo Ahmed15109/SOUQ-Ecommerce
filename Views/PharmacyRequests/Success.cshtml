@@ -10,6 +10,11 @@
         <h2 class="fw-bold mb-3">تم استلام طلبك بنجاح!</h2>
         <p class="text-muted mb-4 lead">شكراً لك. سنقوم بمراجعة طلبك وتجهيز الأدوية المطلوبة في أقرب وقت.</p>
         
+        @if (ViewData["RequestId"] is int requestId)
+        {
+            <p class="alert alert-light border">رقم الطلب المرجعي: <strong>#@requestId</strong></p>
+        }
+
         <div class="d-flex justify-content-center gap-2">
             <a href="/" class="btn btn-outline-secondary rounded-pill px-4">العودة للرئيسية</a>
             <a href="/PharmacyRequests/Create" class="btn btn-primary rounded-pill px-4">طلب دواء آخر</a>

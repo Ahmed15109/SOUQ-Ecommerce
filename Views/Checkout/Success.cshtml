@@ -26,7 +26,7 @@
                 <div class="col-md-6 mb-3">
                     <div class="d-flex justify-content-between">
                         <span class="text-muted">تاريخ الطلب:</span>
-                        <span class="fw-bold">@Model.OrderDate.ToString("dd/MM/yyyy hh:mm tt")</span>
+                        <span class="fw-bold">@Model.OrderDate.ToCairoTime().ToString("dd/MM/yyyy hh:mm tt")</span>
                     </div>
                 </div>
             </div>
@@ -79,7 +79,20 @@
                                 <td>
                                     <img src="@item.ImageUrl" alt="@item.ProductName" class="img-thumbnail" style="width: 60px; height: 60px; object-fit: cover;">
                                 </td>
-                                <td class="align-middle">@item.ProductName</td>
+                                <td class="align-middle">
+                                    @item.ProductName
+                                    @if (item.SelectedWeightKg.HasValue)
+                                    {
+                                        <small class="d-block text-muted">
+                                            @item.SelectedWeightKg.Value.ToString("0.##") كجم
+                                            بسعر @item.SelectedPricePerKg?.ToString("N2") ج.م/كجم
+                                            @if (item.CuttingSelected)
+                                            {
+                                                <span>— تقطيع</span>
+                                            }
+                                        </small>
+                                    }
+                                </td>
                                 <td class="align-middle">@item.UnitPrice.ToString("N2") ج.م</td>
                                 <td class="align-middle">@item.Quantity</td>
                                 <td class="align-middle fw-bold">@item.LineTotal.ToString("N2") ج.م</td>

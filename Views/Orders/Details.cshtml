@@ -41,8 +41,8 @@
                                             <h6 class="mb-0">@item.ProductName</h6>
                                         </td>
                                         <td>x @item.Quantity</td>
-                                        <td class="text-end">$@item.UnitPrice</td>
-                                        <td class="text-end fw-bold">$@item.LineTotal</td>
+                                        <td class="text-end">@item.UnitPrice.ToString("N2") ج.م</td>
+                                        <td class="text-end fw-bold">@item.LineTotal.ToString("N2") ج.م</td>
                                     </tr>
                                 }
                             </tbody>
@@ -59,26 +59,26 @@
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">تاريخ الطلب</span>
-                        <span class="fw-bold">@Model.CreatedAt.ToString("g")</span>
+                        <span class="fw-bold">@Model.CreatedAt.ToCairoTime().ToString("g")</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">الحالة</span>
                         <span class="fw-bold">
-                            @Model.Status.ToString()
+                            @Model.Status.GetDisplayName()
                         </span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">المجموع الفرعي</span>
-                        <span>$@ViewBag.Subtotal</span>
+                        <span>@(((decimal)ViewBag.Subtotal).ToString("N2")) ج.م</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">التوصيل</span>
-                        <span>$@ViewBag.DeliveryFee</span>
+                        <span>@(((decimal)ViewBag.DeliveryFee).ToString("N2")) ج.م</span>
                     </div>
                     <div class="d-flex justify-content-between border-top pt-2 mt-2">
                         <span class="fw-bold">الإجمالي</span>
-                        <span class="fw-bold text-primary fs-5">$@ViewBag.Total</span>
+                        <span class="fw-bold text-primary fs-5">@(((decimal)ViewBag.Total).ToString("N2")) ج.م</span>
                     </div>
                 </div>
             </div>

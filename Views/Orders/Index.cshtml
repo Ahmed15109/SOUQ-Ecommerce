@@ -1,5 +1,5 @@
 @using EcommerceApp.Helpers
-@model IEnumerable<EcommerceApp.Models.Order>
+@model EcommerceApp.ViewModels.PagedResult<EcommerceApp.Models.Order>
 
 @{
     ViewData["Title"] = "طلباتي";
@@ -8,7 +8,7 @@
 <div class="container py-4">
     <h2 class="mb-4">سجل طلباتي</h2>
 
-    @if (!Model.Any())
+    @if (Model.TotalCount == 0)
     {
         <div class="alert alert-info text-center">
             لم تقم بأي طلبات بعد. <a href="/">تصفح المنتجات</a>
@@ -30,11 +30,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Items)
                         {
                             <tr>
                                 <td>#@item.Id</td>
-                                <td>@item.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                <td>@item.CreatedAt.ToCairoTime().ToString("yyyy/MM/dd")</td>
                                 <td>@item.City, @item.Area</td>
                                 <td>
                                     @{
@@ -50,7 +50,7 @@
                                     }
                                     <span class="badge @badgeClass">@item.Status.GetDisplayName()</span>
                                 </td>
-                                <td class="fw-bold">$@item.Total</td>
+                                <td class="fw-bold">@item.Total.ToString("N2") ج.م</td>
                                 <td class="text-end">
                                     <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
                                         التفاصيل
@@ -62,5 +62,7 @@
                 </table>
             </div>
         </div>
+
+        <partial name="_Pagination" model="Model" />
     }
 </div>

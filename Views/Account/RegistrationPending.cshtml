@@ -1,0 +1,21 @@
+@model string
+@{
+    ViewData["Title"] = "تأكيد البريد";
+    var emailSent = ViewData["EmailSent"] as bool? == true;
+}
+<div class="container py-5 text-center">
+    <div class="alert @(emailSent ? "alert-info" : "alert-warning")">
+        @if (emailSent)
+        {
+            <span>تم إنشاء الحساب. راجع بريدك الإلكتروني واضغط رابط التأكيد قبل تسجيل الدخول.</span>
+        }
+        else
+        {
+            <span>تم إنشاء الحساب، لكن تعذر إرسال رسالة التأكيد الآن. تواصل مع إدارة المتجر لإعادة إرسالها.</span>
+        }
+    </div>
+    <form asp-action="ResendConfirmation" method="post" class="mt-3">
+        <input type="hidden" name="Email" value="@Model" />
+        <button type="submit" class="btn btn-outline-primary">إعادة إرسال رسالة التأكيد</button>
+    </form>
+</div>

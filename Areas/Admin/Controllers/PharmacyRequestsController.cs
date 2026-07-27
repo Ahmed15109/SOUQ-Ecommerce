@@ -1,82 +1,106 @@
+using EcommerceApp.Data;
+using EcommerceApp.Extensions;
+using EcommerceApp.Helpers;
+using EcommerceApp.Models;
+using EcommerceApp.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EcommerceApp.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace EcommerceApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = AppRoles.AdminOrSuperAdmin)]
     public class PharmacyRequestsController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public PharmacyRequestsController(AppDbContext context)
+        public PharmacyRequestsController(
+            AppDbContext context,
+            INotificationService notificationService)
         {
             _context = context;
+            _notificationService = notificationService;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 20)
         {
             var requests = await _context.PharmacyRequests
-                .Include(r => r.Items) 
-                .OrderByDescending(r => r.CreatedAt)
-                .ToListAsync();
+                .AsNoTracking()
+                .Include(request => request.Items)
+                .OrderByDescending(request => request.CreatedAt)
+                .ThenByDescending(request => request.Id)
+                .ToPagedListAsync(page, pageSize, defaultPageSize: 20, maxPageSize: 100);
+
             return View(requests);
         }
 
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
+            if (!id.HasValue)
             {
                 return NotFound();
             }
 
-            var pharmacyRequest = await _context.PharmacyRequests
-                .Include(r => r.Items)
-                .Include(r => r.Items)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var request = await _context.PharmacyRequests
+                .AsNoTracking()
+                .Include(item => item.Items)
+                .SingleOrDefaultAsync(item => item.Id == id);
 
-            if (pharmacyRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(pharmacyRequest);
+            return request == null ? NotFound() : View(request);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateStatus(int id, EcommerceApp.Models.PharmacyRequestStatus status)
+        public async Task<IActionResult> UpdateStatus(int id, PharmacyRequestStatus status, byte[]? rowVersion)
         {
-             var request = await _context.PharmacyRequests.FindAsync(id);
-             if (request == null)
-             {
-                 return NotFound();
-             }
+            if (!Enum.IsDefined(status) || rowVersion is null || rowVersion.Length == 0)
+            {
+                return BadRequest();
+            }
 
-             request.Status = status;
-             await _context.SaveChangesAsync();
+            var request = await _context.PharmacyRequests.SingleOrDefaultAsync(item => item.Id == id);
+            if (request == null)
+            {
+                return NotFound();
+            }
 
-             if (!string.IsNullOrEmpty(request.UserId))
-             {
-                 var notification = new EcommerceApp.Models.Notification
-                 {
-                     Title = "تحديث حالة الطلب",
-                     Message = $"تم تحديث حالة طلبك الصيدلي #{request.Id} إلى: {status}",
-                     UserId = request.UserId,
-                     IsForAdmin = false,
-                     IsRead = false,
-                     CreatedAt = DateTime.Now,
-                     PharmacyRequestId = request.Id
-                 };
-                 _context.Notifications.Add(notification);
-                 await _context.SaveChangesAsync();
-             }
+            if (!CanTransition(request.Status, status))
+            {
+                TempData["Error"] = "انتقال حالة الطلب غير مسموح.";
+                return RedirectToAction(nameof(Details), new { id });
+            }
 
-             return RedirectToAction(nameof(Details), new { id = request.Id });
+            if (request.Status == status)
+            {
+                return RedirectToAction(nameof(Details), new { id });
+            }
+
+            request.Status = status;
+            _context.Entry(request).Property(item => item.RowVersion).OriginalValue = rowVersion;
+            _notificationService.AddPharmacyStatusNotification(request);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                TempData["Error"] = "تم تحديث الطلب بواسطة مسؤول آخر. راجع الحالة الحالية وحاول مرة أخرى.";
+            }
+
+            return RedirectToAction(nameof(Details), new { id });
         }
+
+        private static bool CanTransition(PharmacyRequestStatus current, PharmacyRequestStatus next) =>
+            current == next ||
+            current switch
+            {
+                PharmacyRequestStatus.New => next is PharmacyRequestStatus.Processing or PharmacyRequestStatus.Cancelled,
+                PharmacyRequestStatus.Processing => next is PharmacyRequestStatus.Shipped or PharmacyRequestStatus.Cancelled,
+                PharmacyRequestStatus.Shipped => next == PharmacyRequestStatus.Delivered,
+                _ => false
+            };
     }
 }

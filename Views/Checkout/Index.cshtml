@@ -18,6 +18,8 @@
 </div>
 
 <form asp-action="Submit" method="post">
+    <input type="hidden" asp-for="IdempotencyKey" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
     <div class="row">
         <div class="col-lg-7 mb-4">
             <div class="card border-0 shadow-sm h-100">
@@ -28,18 +30,20 @@
                     @if (Model.UserAddresses.Any())
                     {
                         <div class="mb-4 pb-3 border-bottom">
-                            <h6 class="fw-bold mb-3">اختر عنوان توصيل saved</h6>
+                            <h6 class="fw-bold mb-3">اختر عنوان توصيل محفوظًا</h6>
                             @foreach (var addr in Model.UserAddresses)
                             {
                                 <div class="form-check mb-2">
-                                    <input class="form-check-input" type="radio" name="selectedAddress" id="addr_@addr.Id" value="@addr.Id" @(addr.IsDefault ? "checked" : "")>
+                                    <input asp-for="SelectedAddressId" class="form-check-input" type="radio"
+                                           id="addr_@addr.Id" value="@addr.Id">
                                     <label class="form-check-label" for="addr_@addr.Id">
                                         <strong>@addr.City, @addr.Area</strong> - @addr.Street
                                     </label>
                                 </div>
                             }
                             <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="selectedAddress" id="addr_new" value="new">
+                                <input asp-for="SelectedAddressId" class="form-check-input" type="radio"
+                                       id="addr_new" value="">
                                 <label class="form-check-label text-primary" for="addr_new">
                                     <i class="bi bi-plus-circle"></i> استخدام عنوان جديد
                                 </label>
@@ -112,9 +116,19 @@
                                 <div class="flex-grow-1">
                                     <h6 class="mb-0 text-truncate" style="max-width: 150px;">@item.ProductName</h6>
                                     <small class="text-muted">x @item.Quantity</small>
+                                    @if (item.SelectedWeightKg.HasValue)
+                                    {
+                                        <small class="text-muted d-block">
+                                            @item.SelectedWeightKg.Value.ToString("0.##") كجم
+                                            @if (item.CuttingSelected)
+                                            {
+                                                <span>— تقطيع</span>
+                                            }
+                                        </small>
+                                    }
                                 </div>
                                 <div class="fw-bold text-end">
-                                    $@item.Total
+                                    @item.Total.ToString("N2") ج.م
                                 </div>
                             </div>
                         }
@@ -124,15 +138,15 @@
 
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">المجموع الفرعي</span>
-                        <span class="fw-bold">$@Model.Subtotal</span>
+                        <span class="fw-bold">@Model.Subtotal.ToString("N2") ج.م</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                          <span class="text-muted">رسوم التوصيل</span>
-                        <span class="fw-bold">$@Model.DeliveryFee</span>
+                        <span class="fw-bold">@Model.DeliveryFee.ToString("N2") ج.م</span>
                     </div>
                      <div class="d-flex justify-content-between mb-4 border-top pt-2">
                          <span class="fw-bold fs-5">الإجمالي الكلي</span>
-                        <span class="fw-bold fs-5 text-primary">$@Model.GrandTotal</span>
+                        <span class="fw-bold fs-5 text-primary">@Model.GrandTotal.ToString("N2") ج.م</span>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold fs-5 shadow-sm">
@@ -150,10 +164,10 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     
-    <script>
+    <script nonce="@Context.Items["CspNonce"]">
         document.addEventListener('DOMContentLoaded', function() {
             const addresses = @Json.Serialize(Model.UserAddresses);
-            const addressRadios = document.getElementsByName('selectedAddress');
+            const addressRadios = document.getElementsByName('SelectedAddressId');
             
             function clearForm() {
                 document.getElementById('City').value = '';
@@ -174,7 +188,7 @@
             addressRadios.forEach(radio => {
                 radio.addEventListener('change', function() {
                     const val = this.value;
-                    if (val === 'new') {
+                    if (val === '') {
                         clearForm();
                     } else {
                         const addr = addresses.find(a => a.id == parseInt(val));
@@ -183,11 +197,6 @@
                 });
             });
             
-            const checked = document.querySelector('input[name="selectedAddress"]:checked');
-            if(checked && checked.value !== 'new') {
-                 const addr = addresses.find(a => a.id == parseInt(checked.value));
-                 if (addr) fillForm(addr);
-            }
         });
     </script>
 }

@@ -12,9 +12,11 @@ namespace EcommerceApp.Models
         public PharmacyRequest? PharmacyRequest { get; set; }
 
         [Required]
+        [MaxLength(150)]
         public string MedicineName { get; set; } = string.Empty;
 
         [Required]
+        [Range(1, 100)]
         public int Quantity { get; set; }
     }
 }

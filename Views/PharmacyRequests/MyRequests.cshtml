@@ -1,5 +1,5 @@
 @using EcommerceApp.Helpers
-@model IEnumerable<EcommerceApp.Models.PharmacyRequest>
+@model EcommerceApp.ViewModels.PagedResult<EcommerceApp.Models.PharmacyRequest>
 
 @{
     ViewData["Title"] = "طلباتي الصيدلانية";
@@ -13,7 +13,7 @@
         </a>
     </div>
 
-    @if (!Model.Any())
+    @if (Model.TotalCount == 0)
     {
         <div class="alert alert-info text-center shadow-sm p-5">
             <i class="bi bi-capsule fs-1 d-block mb-3 text-secondary"></i>
@@ -25,7 +25,7 @@
     else
     {
         <div class="row">
-            @foreach (var item in Model)
+            @foreach (var item in Model.Items)
             {
                 <div class="col-md-6 mb-4">
                     <div class="card shadow-sm h-100 border-0">
@@ -46,7 +46,7 @@
                             <span class="badge bg-@badgeClass">@item.Status.GetDisplayName()</span>
                         </div>
                         <div class="card-body">
-                            <p class="card-text text-muted small mb-2"><i class="bi bi-calendar3 me-1"></i> @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")</p>
+                            <p class="card-text text-muted small mb-2"><i class="bi bi-calendar3 me-1"></i> @item.CreatedAt.ToCairoTime().ToString("yyyy/MM/dd HH:mm")</p>
                             
                             @if (item.Items.Any())
                             {
@@ -67,14 +67,17 @@
                             
                             @if (!string.IsNullOrEmpty(item.PrescriptionImagePath))
                             {
-                                <div class="alert alert-secondary py-2 mb-0 small">
-                                    <i class="bi bi-image me-1"></i> مرفق صورة
-                                </div>
+                                <a asp-action="DownloadPrescription" asp-route-id="@item.Id"
+                                   class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                                    <i class="bi bi-paperclip me-1"></i> عرض المرفق
+                                </a>
                             }
                         </div>
                     </div>
                 </div>
             }
         </div>
+
+        <partial name="_Pagination" model="Model" />
     }
 </div>

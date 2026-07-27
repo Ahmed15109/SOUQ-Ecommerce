@@ -7,5 +7,9 @@ namespace EcommerceApp.ViewModels
         public decimal UnitPrice { get; set; }
         public int Quantity { get; set; }
         public decimal LineTotal { get; set; }
+        public decimal? SelectedWeightKg { get; set; }
+        public decimal? SelectedPricePerKg { get; set; }
+        public bool CuttingSelected { get; set; }
+        public decimal CuttingFeeApplied { get; set; }
     }
 }

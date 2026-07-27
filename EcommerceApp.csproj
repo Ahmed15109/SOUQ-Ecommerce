@@ -1,21 +1,44 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <!-- A deployed historical migration is named "asd"; renaming it would break migration history. -->
+    <NoWarn>$(NoWarn);CS8981</NoWarn>
     <UserSecretsId>7cc6f93e-0719-47de-8cf9-11a5e911ed82</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="9.0.18" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.18" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.18">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="QuestPDF" Version="2025.12.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.18" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.18" />
+    <PackageReference Include="QuestPDF" Version="2026.7.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+    <Compile Remove="publish-check\**\*.cs;tmp\**\*.cs;SecureUploads\**\*.cs" />
+    <Content Remove="tests\**\*;publish-check\**\*;tmp\**\*;SecureUploads\**\*" />
+    <EmbeddedResource Remove="tests\**\*;publish-check\**\*;tmp\**\*;SecureUploads\**\*" />
+    <None Remove="tests\**\*;publish-check\**\*;tmp\**\*;SecureUploads\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Fonts\Cairo-Regular.ttf" />
+    <None Remove="Assets\Fonts\OFL.txt" />
+    <Content Include="Assets\Fonts\Cairo-Regular.ttf"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="Assets\Fonts\OFL.txt"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

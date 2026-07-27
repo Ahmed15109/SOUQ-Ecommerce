@@ -1,0 +1,108 @@
+@model dynamic
+
+@{
+    int pageNumber = Model.PageNumber;
+    int totalPages = Model.TotalPages;
+    bool hasPrevious = Model.HasPreviousPage;
+    bool hasNext = Model.HasNextPage;
+}
+
+@if (totalPages > 1)
+{
+    var routeValues = new Microsoft.AspNetCore.Routing.RouteValueDictionary();
+    foreach (var key in Context.Request.Query.Keys)
+    {
+        if (key != null && !string.Equals(key, "page", StringComparison.OrdinalIgnoreCase))
+        {
+            routeValues[key] = Context.Request.Query[key].ToString();
+        }
+    }
+
+    int windowSize = 2;
+    int startPage = Math.Max(1, pageNumber - windowSize);
+    int endPage = Math.Min(totalPages, pageNumber + windowSize);
+
+    if (startPage <= 3)
+    {
+        endPage = Math.Min(totalPages, 1 + (windowSize * 2));
+    }
+    if (endPage >= totalPages - 2)
+    {
+        startPage = Math.Max(1, totalPages - (windowSize * 2));
+    }
+
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center dir-rtl">
+            <li class="page-item @(!hasPrevious ? "disabled" : "")">
+                @if (hasPrevious)
+                {
+                    routeValues["page"] = pageNumber - 1;
+                    <a class="page-link" href="@Url.Action(null, routeValues)" aria-label="الصفحة السابقة">
+                        <span aria-hidden="true">&rsaquo; السابق</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="page-link" aria-disabled="true">
+                        <span aria-hidden="true">&rsaquo; السابق</span>
+                    </span>
+                }
+            </li>
+
+            @if (startPage > 1)
+            {
+                routeValues["page"] = 1;
+                <li class="page-item @(1 == pageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action(null, routeValues)">1</a>
+                </li>
+                @if (startPage > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                routeValues["page"] = i;
+                <li class="page-item @(i == pageNumber ? "active" : "")">
+                    @if (i == pageNumber)
+                    {
+                        <span class="page-link" aria-current="page">@i</span>
+                    }
+                    else
+                    {
+                        <a class="page-link" href="@Url.Action(null, routeValues)">@i</a>
+                    }
+                </li>
+            }
+
+            @if (endPage < totalPages)
+            {
+                @if (endPage < totalPages - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">&hellip;</span></li>
+                }
+                routeValues["page"] = totalPages;
+                <li class="page-item @(totalPages == pageNumber ? "active" : "")">
+                    <a class="page-link" href="@Url.Action(null, routeValues)">@totalPages</a>
+                </li>
+            }
+
+            <li class="page-item @(!hasNext ? "disabled" : "")">
+                @if (hasNext)
+                {
+                    routeValues["page"] = pageNumber + 1;
+                    <a class="page-link" href="@Url.Action(null, routeValues)" aria-label="الصفحة التالية">
+                        <span aria-hidden="true">التالي &lsaquo;</span>
+                    </a>
+                }
+                else
+                {
+                    <span class="page-link" aria-disabled="true">
+                        <span aria-hidden="true">التالي &lsaquo;</span>
+                    </span>
+                }
+            </li>
+        </ul>
+    </nav>
+}

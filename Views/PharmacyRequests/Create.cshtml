@@ -24,6 +24,8 @@
                     }
 
                     <form asp-action="Create" enctype="multipart/form-data" method="post" id="pharmacyForm">
+                        <input type="hidden" asp-for="SubmissionToken" />
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
                         
                         <div class="mb-5">
                             <h5 class="fw-bold bg-light p-2 rounded mb-3 text-primary">1. تفاصيل الطلب</h5>
@@ -39,7 +41,7 @@
                                                 <span asp-validation-for="Medicines[i].Name" class="text-danger small"></span>
                                             </div>
                                             <div class="col-3">
-                                                <input asp-for="Medicines[i].Quantity" type="number" min="1" class="form-control" placeholder="الكمية" />
+                                                <input asp-for="Medicines[i].Quantity" type="number" min="1" max="100" class="form-control" placeholder="الكمية" />
                                                 <span asp-validation-for="Medicines[i].Quantity" class="text-danger small"></span>
                                             </div>
                                             <div class="col-2 text-end">
@@ -58,7 +60,8 @@
 
                             <div class="mb-4 ps-3 border-end border-primary border-3">
                                 <h6 class="fw-bold mb-3"><i class="bi bi-image me-2"></i>صورة الروشتة (اختياري)</h6>
-                                <input asp-for="PrescriptionImage" type="file" class="form-control" accept="image/*" />
+                                <input asp-for="PrescriptionImage" type="file" class="form-control"
+                                       accept=".jpg,.jpeg,.png,.webp,.pdf,image/jpeg,image/png,image/webp,application/pdf" />
                                 <div class="form-text text-muted">يمكنك رفع صورة الروشتة بدلاً من كتابة الأسماء يدوياً.</div>
                             </div>
 
@@ -71,7 +74,7 @@
                         <div class="mb-5">
                             <h5 class="fw-bold bg-light p-2 rounded mb-3 text-primary">2. بيانات التوصيل</h5>
                             
-                             @if (!User.Identity.IsAuthenticated)
+                             @if (User.Identity?.IsAuthenticated != true)
                             {
                                 <div class="alert alert-info py-2 mb-4 d-flex justify-content-between align-items-center">
                                     <small><i class="bi bi-info-circle me-1"></i> لديك حساب؟ سجل دخولك لملء البيانات تلقائيًا.</small>
@@ -81,7 +84,7 @@
 
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label asp-for="FullName" class="form-label fw-bold">الاسم الكامل (اختياري)</label>
+                                    <label asp-for="FullName" class="form-label fw-bold">الاسم الكامل</label>
                                     <input asp-for="FullName" class="form-control" placeholder="الاسم" />
                                 </div>
                                 <div class="col-md-6">
@@ -109,13 +112,16 @@
 </div>
 
 @section Scripts {
-    <script>
+    <script nonce="@Context.Items["CspNonce"]">
         document.addEventListener('DOMContentLoaded', function () {
             const container = document.getElementById('medicines-container');
             const addBtn = document.getElementById('add-row-btn');
 
             addBtn.addEventListener('click', function () {
                 const index = container.querySelectorAll('.medicine-row').length;
+                if (index >= 25) {
+                    return;
+                }
                 const newRow = document.createElement('div');
                 newRow.className = 'row g-2 align-items-center mb-2 medicine-row';
                 newRow.innerHTML = `
@@ -123,7 +129,7 @@
                         <input type="text" name="Medicines[${index}].Name" class="form-control" placeholder="اسم الدواء (مطلوب)" />
                     </div>
                     <div class="col-3">
-                        <input type="number" min="1" name="Medicines[${index}].Quantity" class="form-control" placeholder="الكمية" />
+                        <input type="number" min="1" max="100" name="Medicines[${index}].Quantity" class="form-control" placeholder="الكمية" />
                     </div>
                     <div class="col-2 text-end">
                         <button type="button" class="btn btn-outline-danger btn-sm remove-row"><i class="bi bi-trash"></i></button>

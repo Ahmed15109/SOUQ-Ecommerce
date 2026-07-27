@@ -1,0 +1,10 @@
+@{
+    ViewData["Title"] = "تأكيد البريد";
+    var confirmed = ViewData["Confirmed"] as bool? == true;
+}
+<div class="container py-5 text-center">
+    <div class="alert @(confirmed ? "alert-success" : "alert-danger")">
+        @(confirmed ? "تم تأكيد البريد الإلكتروني." : "تعذر تأكيد البريد الإلكتروني.")
+    </div>
+    <a asp-action="Login" class="btn btn-primary">تسجيل الدخول</a>
+</div>

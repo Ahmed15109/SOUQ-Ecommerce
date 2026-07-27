@@ -5,6 +5,7 @@ namespace EcommerceApp.ViewModels
     public class RegisterViewModel
     {
         [Required(ErrorMessage = "الاسم الكامل مطلوب")]
+        [MaxLength(100)]
         [Display(Name = "الاسم الكامل")]
         public string FullName { get; set; } = string.Empty;
 
@@ -14,13 +15,14 @@ namespace EcommerceApp.ViewModels
         public string Email { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "رقم الهاتف مطلوب")]
+        [RegularExpression(@"^01[0125]\d{8}$")]
         [Phone(ErrorMessage = "رقم الهاتف غير صحيح")]
         [Display(Name = "رقم الهاتف")]
         public string PhoneNumber { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "كلمة المرور مطلوبة")]
         [DataType(DataType.Password)]
-        [StringLength(100, ErrorMessage = "{0} يجب أن تكون على الأقل {2} حرفاً.", MinimumLength = 6)]
+        [StringLength(100, ErrorMessage = "{0} يجب أن تكون على الأقل {2} حرفاً.", MinimumLength = 8)]
         [Display(Name = "كلمة المرور")]
         public string Password { get; set; } = string.Empty;
 

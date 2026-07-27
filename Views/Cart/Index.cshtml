@@ -42,17 +42,17 @@ else
                                 @if(item.SelectedWeightKg.HasValue)
                                 {
                                     <div class="small text-muted">
-                                        <div>سعر الكيلو: <span class="fw-bold">$@item.SelectedPricePerKg</span></div>
+                                        <div>سعر الكيلو: <span class="fw-bold">@item.SelectedPricePerKg.GetValueOrDefault().ToString("N2") ج.م</span></div>
                                         @if(item.CuttingFeeApplied > 0)
                                         {
-                                            <div>خدمة تقطيع: <span class="text-danger">+$@item.CuttingFeeApplied</span></div>
+                                            <div>خدمة تقطيع: <span class="text-danger">+@item.CuttingFeeApplied.ToString("N2") ج.م</span></div>
                                         }
                                     </div>
-                                    <p class="text-muted small mb-0 mt-1">سعر الوحدة: <span class="text-primary fw-bold">$@item.UnitPriceSnapshot</span></p>
+                                    <p class="text-muted small mb-0 mt-1">سعر الوحدة: <span class="text-primary fw-bold">@item.UnitPriceSnapshot.ToString("N2") ج.م</span></p>
                                 }
                                 else
                                 {
-                                    <p class="text-muted small mb-0">السعر: <span class="text-primary fw-bold">$@item.UnitPriceSnapshot</span></p>
+                                    <p class="text-muted small mb-0">السعر: <span class="text-primary fw-bold">@item.UnitPriceSnapshot.ToString("N2") ج.م</span></p>
                                 }
                             </div>
                             <div class="col-6 col-md-3 mt-3 mt-md-0">
@@ -63,7 +63,7 @@ else
                                 </div>
                             </div>
                             <div class="col-6 col-md-3 mt-3 mt-md-0 text-end">
-                                <h6 class="fw-bold mb-1 item-total">$@(item.UnitPriceSnapshot * item.Quantity)</h6>
+                                <h6 class="fw-bold mb-1 item-total">@((item.UnitPriceSnapshot * item.Quantity).ToString("N2")) ج.م</h6>
                                 <button class="btn btn-link text-danger p-0 small text-decoration-none btn-remove">
                                     <i class="bi bi-trash"></i> حذف
                                 </button>
@@ -80,16 +80,16 @@ else
                     <h5 class="fw-bold mb-4">ملخص الطلب</h5>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">المجموع الفرعي</span>
-                        <span class="fw-bold" id="cart-subtotal">$@ViewBag.Subtotal</span>
+                        <span class="fw-bold" id="cart-subtotal">@(((decimal)ViewBag.Subtotal).ToString("N2")) ج.م</span>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
                         <span class="text-muted">التوصيل</span>
-                        <span class="fw-bold">$@ViewBag.DeliveryFee</span>
+                        <span class="fw-bold">@(((decimal)ViewBag.DeliveryFee).ToString("N2")) ج.م</span>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between mb-4">
                         <span class="fw-bold fs-5">الإجمالي</span>
-                        <span class="fw-bold fs-5 text-primary" id="cart-total">$@ViewBag.Total</span>
+                        <span class="fw-bold fs-5 text-primary" id="cart-total">@(((decimal)ViewBag.Total).ToString("N2")) ج.م</span>
                     </div>
                     
                     <a href="/Checkout" class="btn btn-primary w-100 py-2 rounded-pill fw-bold">

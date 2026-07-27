@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Data;
 using EcommerceApp.Models;
+using EcommerceApp.Extensions;
 
 namespace EcommerceApp.Controllers
 {
@@ -17,13 +18,15 @@ namespace EcommerceApp.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1, int pageSize = 10)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var orders = await _context.Orders
+                .AsNoTracking()
                 .Where(o => o.UserId == userId)
                 .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                .ThenByDescending(o => o.Id)
+                .ToPagedListAsync(page, pageSize, defaultPageSize: 10, maxPageSize: 50);
 
             return View(orders);
         }
@@ -40,13 +43,9 @@ namespace EcommerceApp.Controllers
                 return NotFound();
             }
 
-            decimal subtotal = order.OrderItems.Sum(item => item.LineTotal);
-            decimal deliveryFee = order.DeliveryFee > 0 ? order.DeliveryFee : 15m;
-            decimal total = subtotal + deliveryFee;
-
-            ViewBag.Subtotal = subtotal;
-            ViewBag.DeliveryFee = deliveryFee;
-            ViewBag.Total = total;
+            ViewBag.Subtotal = order.Subtotal;
+            ViewBag.DeliveryFee = order.DeliveryFee;
+            ViewBag.Total = order.Total;
 
             return View(order);
         }

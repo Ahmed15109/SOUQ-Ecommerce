@@ -112,7 +112,16 @@
                                         <tr>
                                             <td>@product.Name</td>
                                             <td>@product.Category?.Name</td>
-                                            <td>@product.Price.ToString("C")</td>
+                                            <td>
+                                                @if (product.SellingMode == SellingMode.ByWeight)
+                                                {
+                                                    <span>@product.PricePerKg.ToString("N2") ج.م / كجم</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@product.Price.ToString("N2") ج.م</span>
+                                                }
+                                            </td>
                                         </tr>
                                     }
                                 }
@@ -133,7 +142,7 @@
         </div>
     </div>
     
-    @if (User.IsInRole("SuperAdmin"))
+    @if (User.IsInRole(AppRoles.SuperAdmin))
     {
         <div class="mt-4 text-center">
             <a asp-controller="AdminUsers" asp-action="Index" class="btn btn-dark"><i class="bi bi-shield-lock me-2"></i>إدارة المسؤولين</a>

@@ -13,14 +13,20 @@ namespace EcommerceApp.Models
 
         [Column(TypeName = "decimal(18,2)")]
         [Required]
+        [Range(0.01, 1000)]
         public decimal FromKg { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         [Required]
+        [Range(0.01, 1000)]
         public decimal ToKg { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         [Required]
+        [Range(0.01, 10000)]
         public decimal PricePerKg { get; set; }
+
+        [Timestamp]
+        public byte[] RowVersion { get; set; } = [];
     }
 }

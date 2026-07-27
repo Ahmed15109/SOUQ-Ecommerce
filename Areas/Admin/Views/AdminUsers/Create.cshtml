@@ -1,8 +1,8 @@
 
-@model EcommerceApp.ViewModels.RegisterAdminViewModel
+@model EcommerceApp.Areas.Admin.ViewModels.CreateAdminUserViewModel
 
 @{
-    ViewData["Title"] = "Create Admin";
+    ViewData["Title"] = "إنشاء مسؤول جديد";
 }
 
 <div class="container py-4">
@@ -10,33 +10,39 @@
         <div class="col-md-6">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white py-3">
-                    <h5 class="fw-bold mb-0">Register New Admin</h5>
+                    <h5 class="fw-bold mb-0">تسجيل مسؤول جديد</h5>
                 </div>
                 <div class="card-body p-4">
                     <form asp-action="Create">
                         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
                         
                         <div class="mb-3">
-                            <label asp-for="Email" class="form-label">Email Address</label>
+                            <label asp-for="FullName" class="form-label">الاسم الكامل</label>
+                            <input asp-for="FullName" class="form-control" placeholder="الاسم" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
                             <input asp-for="Email" class="form-control" placeholder="name@example.com" />
                             <span asp-validation-for="Email" class="text-danger"></span>
                         </div>
 
                         <div class="mb-3">
-                            <label asp-for="Password" class="form-label">Password</label>
+                            <label asp-for="Password" class="form-label">كلمة المرور</label>
                             <input asp-for="Password" class="form-control" autocomplete="new-password" />
                             <span asp-validation-for="Password" class="text-danger"></span>
                         </div>
 
                         <div class="mb-4">
-                            <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <label asp-for="ConfirmPassword" class="form-label">تأكيد كلمة المرور</label>
                             <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" />
                             <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
-                            <button type="submit" class="btn btn-primary px-4">Register Admin</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">العودة للقائمة</a>
+                            <button type="submit" class="btn btn-primary px-4">إنشاء المسؤول</button>
                         </div>
                     </form>
                 </div>

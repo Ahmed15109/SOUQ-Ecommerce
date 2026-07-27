@@ -1,4 +1,4 @@
-@model IEnumerable<EcommerceApp.Models.Product>
+@model EcommerceApp.ViewModels.PagedResult<EcommerceApp.Models.Product>
 
 @{
     ViewData["Title"] = "إدارة المنتجات";
@@ -6,11 +6,11 @@
 
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h2>المنتجات</h2>
+        <h2>المنتجات (@Model.TotalCount)</h2>
         
         <div class="d-flex gap-2">
             <form asp-action="Index" method="get" class="d-flex align-items-center">
-                <select name="categoryId" class="form-select me-2" asp-items="ViewBag.Categories" onchange="this.form.submit()">
+                <select name="categoryId" class="form-select me-2" asp-items="ViewBag.Categories" data-auto-submit>
                     <option value="">كل الأقسام</option>
                 </select>
             </form>
@@ -32,12 +32,21 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var item in Model.Items)
                         {
                             <tr>
                                 <td class="align-middle">@item.Name</td>
                                 <td class="align-middle">@item.Category?.Name</td>
-                                <td class="align-middle">@item.Price.ToString("C")</td>
+                                <td class="align-middle">
+                                    @if (item.SellingMode == SellingMode.ByWeight)
+                                    {
+                                        <span>@item.PricePerKg.ToString("N2") ج.م/كجم</span>
+                                    }
+                                    else
+                                    {
+                                        <span>@item.Price.ToString("N2") ج.م</span>
+                                    }
+                                </td>
                                 <td class="align-middle">
                                     @if (!string.IsNullOrEmpty(item.ImageUrl))
                                     {
@@ -57,4 +66,6 @@
             </div>
         </div>
     </div>
+
+    <partial name="_Pagination" model="Model" />
 </div>

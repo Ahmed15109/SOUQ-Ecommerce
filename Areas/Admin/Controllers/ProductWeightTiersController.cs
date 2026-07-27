@@ -1,13 +1,14 @@
+using EcommerceApp.Data;
+using EcommerceApp.Helpers;
+using EcommerceApp.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using EcommerceApp.Data;
-using EcommerceApp.Models;
 
 namespace EcommerceApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = AppRoles.AdminOrSuperAdmin)]
     public class ProductWeightTiersController : Controller
     {
         private readonly AppDbContext _context;
@@ -20,19 +21,26 @@ namespace EcommerceApp.Areas.Admin.Controllers
         public async Task<IActionResult> Index(int productId)
         {
             var product = await _context.Products
-                .Include(p => p.WeightTiers)
-                .FirstOrDefaultAsync(p => p.Id == productId);
+                .AsNoTracking()
+                .Include(item => item.WeightTiers)
+                .SingleOrDefaultAsync(item => item.Id == productId);
 
-            if (product == null) return NotFound();
+            if (product == null)
+            {
+                return NotFound();
+            }
 
             ViewData["Product"] = product;
-            return View(product.WeightTiers.OrderBy(t => t.FromKg).ToList());
+            return View(product.WeightTiers.OrderBy(tier => tier.FromKg).ToList());
         }
 
         public async Task<IActionResult> Create(int productId)
         {
-            var product = await _context.Products.FindAsync(productId);
-            if (product == null) return NotFound();
+            var product = await _context.Products.AsNoTracking().SingleOrDefaultAsync(item => item.Id == productId);
+            if (product == null || product.SellingMode != SellingMode.ByWeight)
+            {
+                return NotFound();
+            }
 
             ViewData["Product"] = product;
             return View(new ProductWeightTier { ProductId = productId });
@@ -40,43 +48,50 @@ namespace EcommerceApp.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,FromKg,ToKg,PricePerKg")] ProductWeightTier tier)
+        public async Task<IActionResult> Create(
+            [Bind("ProductId,FromKg,ToKg,PricePerKg")] ProductWeightTier tier)
         {
-            if (tier.FromKg >= tier.ToKg)
+            await ValidateTierAsync(tier);
+            if (!ModelState.IsValid)
             {
-                ModelState.AddModelError("ToKg", "الوزن النهائي يجب أن يكون أكبر من الوزن الابتدائي");
+                ViewData["Product"] = await _context.Products.AsNoTracking()
+                    .SingleOrDefaultAsync(product => product.Id == tier.ProductId);
+                return View(tier);
             }
 
-            var hasOverlap = await _context.ProductWeightTiers
-                .AnyAsync(t => t.ProductId == tier.ProductId && 
-                               ((tier.FromKg >= t.FromKg && tier.FromKg < t.ToKg) || 
-                                (tier.ToKg > t.FromKg && tier.ToKg <= t.ToKg) ||
-                                (tier.FromKg <= t.FromKg && tier.ToKg >= t.ToKg)));
-
-            if (hasOverlap)
+            _context.ProductWeightTiers.Add(tier);
+            try
             {
-                ModelState.AddModelError("", "هناك تداخل مع شريحة أخرى موجودة");
-            }
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(tier);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { productId = tier.ProductId });
+            }
+            catch (DbUpdateException)
+            {
+                _context.Entry(tier).State = EntityState.Detached;
+                if (!await ExactTierExistsAsync(tier))
+                {
+                    throw;
+                }
+
+                ModelState.AddModelError(string.Empty, "توجد شريحة بالنطاق نفسه بالفعل.");
+                ViewData["Product"] = await _context.Products.AsNoTracking()
+                    .SingleOrDefaultAsync(product => product.Id == tier.ProductId);
+                return View(tier);
             }
 
-            var product = await _context.Products.FindAsync(tier.ProductId);
-            ViewData["Product"] = product;
-            return View(tier);
+            return RedirectToAction(nameof(Index), new { productId = tier.ProductId });
         }
 
         public async Task<IActionResult> Edit(int id)
         {
             var tier = await _context.ProductWeightTiers
-                .Include(t=>t.Product)
-                .FirstOrDefaultAsync(t => t.Id == id);
-                
-            if (tier == null) return NotFound();
+                .AsNoTracking()
+                .Include(item => item.Product)
+                .SingleOrDefaultAsync(item => item.Id == id);
+
+            if (tier == null)
+            {
+                return NotFound();
+            }
 
             ViewData["Product"] = tier.Product;
             return View(tier);
@@ -84,56 +99,116 @@ namespace EcommerceApp.Areas.Admin.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,ProductId,FromKg,ToKg,PricePerKg")] ProductWeightTier tier)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,ProductId,FromKg,ToKg,PricePerKg,RowVersion")] ProductWeightTier input)
         {
-            if (id != tier.Id) return NotFound();
-
-            if (tier.FromKg >= tier.ToKg)
+            if (id != input.Id)
             {
-                ModelState.AddModelError("ToKg", "الوزن النهائي يجب أن يكون أكبر من الوزن الابتدائي");
+                return NotFound();
             }
 
-            var hasOverlap = await _context.ProductWeightTiers
-                .AnyAsync(t => t.ProductId == tier.ProductId && t.Id != tier.Id &&
-                               ((tier.FromKg >= t.FromKg && tier.FromKg < t.ToKg) || 
-                                (tier.ToKg > t.FromKg && tier.ToKg <= t.ToKg) ||
-                                (tier.FromKg <= t.FromKg && tier.ToKg >= t.ToKg)));
-
-            if (hasOverlap)
+            var tier = await _context.ProductWeightTiers.SingleOrDefaultAsync(item => item.Id == id);
+            if (tier == null || tier.ProductId != input.ProductId)
             {
-                ModelState.AddModelError("", "هناك تداخل مع شريحة أخرى موجودة");
+                return NotFound();
             }
 
-            if (ModelState.IsValid)
+            await ValidateTierAsync(input, id);
+            if (!ModelState.IsValid)
             {
-                try
+                ViewData["Product"] = await _context.Products.AsNoTracking()
+                    .SingleOrDefaultAsync(product => product.Id == input.ProductId);
+                return View(input);
+            }
+
+            _context.Entry(tier).Property(item => item.RowVersion).OriginalValue = input.RowVersion;
+            tier.FromKg = input.FromKg;
+            tier.ToKg = input.ToKg;
+            tier.PricePerKg = input.PricePerKg;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                ModelState.AddModelError(string.Empty, "تم تعديل شريحة السعر بواسطة مستخدم آخر.");
+                ViewData["Product"] = await _context.Products.AsNoTracking()
+                    .SingleOrDefaultAsync(product => product.Id == input.ProductId);
+                return View(input);
+            }
+            catch (DbUpdateException)
+            {
+                if (!await ExactTierExistsAsync(input, id))
                 {
-                    _context.Update(tier);
-                    await _context.SaveChangesAsync();
+                    throw;
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_context.ProductWeightTiers.Any(e => e.Id == tier.Id)) return NotFound();
-                    else throw;
-                }
-                return RedirectToAction(nameof(Index), new { productId = tier.ProductId });
+
+                ModelState.AddModelError(string.Empty, "توجد شريحة بالنطاق نفسه بالفعل.");
+                ViewData["Product"] = await _context.Products.AsNoTracking()
+                    .SingleOrDefaultAsync(product => product.Id == input.ProductId);
+                return View(input);
             }
-            
-            var product = await _context.Products.FindAsync(tier.ProductId);
-            ViewData["Product"] = product;
-            return View(tier);
+
+            return RedirectToAction(nameof(Index), new { productId = input.ProductId });
         }
 
-        public async Task<IActionResult> Delete(int id)
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tier = await _context.ProductWeightTiers.FindAsync(id);
-            if (tier == null) return NotFound();
-            
+            var tier = await _context.ProductWeightTiers.SingleOrDefaultAsync(item => item.Id == id);
+            if (tier == null)
+            {
+                return NotFound();
+            }
+
             var productId = tier.ProductId;
             _context.ProductWeightTiers.Remove(tier);
             await _context.SaveChangesAsync();
-            
-            return RedirectToAction(nameof(Index), new { productId = productId });
+            return RedirectToAction(nameof(Index), new { productId });
         }
+
+        private async Task ValidateTierAsync(ProductWeightTier tier, int? excludedId = null)
+        {
+            var product = await _context.Products.AsNoTracking()
+                .SingleOrDefaultAsync(item => item.Id == tier.ProductId);
+
+            if (product == null || product.SellingMode != SellingMode.ByWeight)
+            {
+                ModelState.AddModelError(nameof(ProductWeightTier.ProductId), "المنتج غير موجود أو لا يباع بالوزن.");
+                return;
+            }
+
+            if (tier.FromKg >= tier.ToKg)
+            {
+                ModelState.AddModelError(nameof(ProductWeightTier.ToKg), "الوزن النهائي يجب أن يزيد عن الوزن الابتدائي.");
+            }
+
+            if (product.MinKg.HasValue && tier.FromKg < product.MinKg.Value ||
+                product.MaxKg.HasValue && tier.ToKg > product.MaxKg.Value)
+            {
+                ModelState.AddModelError(string.Empty, "شريحة السعر يجب أن تقع داخل نطاق وزن المنتج.");
+            }
+
+            var overlaps = await _context.ProductWeightTiers.AnyAsync(existing =>
+                existing.ProductId == tier.ProductId &&
+                existing.Id != excludedId &&
+                existing.FromKg < tier.ToKg &&
+                tier.FromKg < existing.ToKg);
+
+            if (overlaps)
+            {
+                ModelState.AddModelError(string.Empty, "تتداخل شريحة السعر مع شريحة موجودة.");
+            }
+        }
+
+        private Task<bool> ExactTierExistsAsync(ProductWeightTier tier, int? excludedId = null) =>
+            _context.ProductWeightTiers.AsNoTracking().AnyAsync(existing =>
+                existing.ProductId == tier.ProductId &&
+                existing.Id != excludedId &&
+                existing.FromKg == tier.FromKg &&
+                existing.ToKg == tier.ToKg);
     }
 }

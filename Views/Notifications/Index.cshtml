@@ -1,4 +1,4 @@
-@model List<EcommerceApp.Models.Notification>
+@model EcommerceApp.ViewModels.PagedResult<EcommerceApp.Models.Notification>
 
 @{
     ViewData["Title"] = "إشعاراتي";
@@ -6,10 +6,10 @@
 
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2><i class="bi bi-bell"></i> إشعاراتي</h2>
+        <h2><i class="bi bi-bell"></i> إشعاراتي (@Model.TotalCount)</h2>
     </div>
 
-    @if (Model == null || !Model.Any())
+    @if (Model.TotalCount == 0)
     {
         <div class="alert alert-info text-center shadow-sm p-5">
             <i class="bi bi-bell-slash fs-1 d-block mb-3 text-secondary"></i>
@@ -20,7 +20,7 @@
     else
     {
         <div class="row">
-            @foreach (var notification in Model)
+            @foreach (var notification in Model.Items)
             {
                 <div class="col-12 mb-3">
                     <div class="card @(!notification.IsRead ? "border-primary" : "")">
@@ -38,7 +38,7 @@
                                     <small class="text-muted">
                                         <i class="bi bi-clock"></i>
                                         @{
-                                            var timeAgo = DateTime.Now - notification.CreatedAt;
+                                            var timeAgo = DateTime.UtcNow - notification.CreatedAt;
                                             var timeText = timeAgo.TotalMinutes < 1 ? "الآن" :
                                                           timeAgo.TotalHours < 1 ? $"منذ {(int)timeAgo.TotalMinutes} دقيقة" :
                                                           timeAgo.TotalDays < 1 ? $"منذ {(int)timeAgo.TotalHours} ساعة" :
@@ -69,5 +69,7 @@
                 </div>
             }
         </div>
+
+        <partial name="_Pagination" model="Model" />
     }
 </div>

@@ -1,61 +1,29 @@
-
 using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using EcommerceApp.Models;
-using EcommerceApp.Data;
+using EcommerceApp.Services;
 
 namespace EcommerceApp.Controllers
 {
     public class FavoritesController : Controller
     {
-        private readonly AppDbContext _context;
+        private readonly IFavoritesService _favoritesService;
 
-        public FavoritesController(AppDbContext context)
+        public FavoritesController(IFavoritesService favoritesService)
         {
-            _context = context;
+            _favoritesService = favoritesService;
         }
 
-        private List<int> GetFavorites()
+        public async Task<IActionResult> Index()
         {
-            var sessionData = HttpContext.Session.GetString("Favorites");
-            return string.IsNullOrEmpty(sessionData) ? new List<int>() : JsonSerializer.Deserialize<List<int>>(sessionData) ?? new List<int>();
-        }
-
-        private void SaveFavorites(List<int> favorites)
-        {
-            HttpContext.Session.SetString("Favorites", JsonSerializer.Serialize(favorites));
-        }
-
-        public IActionResult Index()
-        {
-            var favoriteIds = GetFavorites();
-            var favoriteProducts = _context.Products.Where(p => favoriteIds.Contains(p.Id)).ToList();
-            
-            foreach(var p in favoriteProducts) p.IsFavorite = true;
-
+            var favoriteProducts = await _favoritesService.GetFavoriteProductsAsync(User, HttpContext.Session);
             return View(favoriteProducts);
         }
 
         [HttpPost]
-        public IActionResult Toggle(int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Toggle(int id)
         {
-            var favorites = GetFavorites();
-            bool isFavorite;
-
-            if (favorites.Contains(id))
-            {
-                favorites.Remove(id);
-                isFavorite = false;
-            }
-            else
-            {
-                favorites.Add(id);
-                isFavorite = true;
-            }
-
-            SaveFavorites(favorites);
-
-            return Json(new { success = true, count = favorites.Count, isFavorite = isFavorite });
+            var (success, message, isFavorite, count) = await _favoritesService.ToggleFavoriteAsync(id, User, HttpContext.Session);
+            return Json(new { success = success, message = message, count = count, isFavorite = isFavorite });
         }
     }
 }

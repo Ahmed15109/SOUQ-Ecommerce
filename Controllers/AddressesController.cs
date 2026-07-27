@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EcommerceApp.Data;
 using EcommerceApp.Models;
+using System.Data;
 
 namespace EcommerceApp.Controllers
 {
@@ -20,17 +21,18 @@ namespace EcommerceApp.Controllers
         public async Task<IActionResult> Index()
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (string.IsNullOrEmpty(userId))
+            if (string.IsNullOrWhiteSpace(userId))
             {
                 return RedirectToAction("Login", "Account");
             }
 
             var addresses = await _context.Addresses
+                .AsNoTracking()
                 .Where(a => a.UserId == userId)
                 .OrderByDescending(a => a.IsDefault)
                 .ToListAsync();
 
-            return View(addresses ?? new List<Address>());
+            return View(addresses);
         }
 
         public IActionResult Create(string? returnUrl = null)
@@ -57,26 +59,29 @@ namespace EcommerceApp.Controllers
 
             if (ModelState.IsValid)
             {
-                if (address.IsDefault)
+                var strategy = _context.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
                 {
-                    var defaultAddresses = _context.Addresses.Where(a => a.UserId == userId && a.IsDefault);
-                    foreach (var addr in defaultAddresses)
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
+                    if (address.IsDefault)
                     {
-                        addr.IsDefault = false;
+                        await _context.Addresses
+                            .Where(item => item.UserId == userId && item.IsDefault)
+                            .ExecuteUpdateAsync(update => update.SetProperty(item => item.IsDefault, false));
                     }
-                }
-                else
-                {
-                    if (!await _context.Addresses.AnyAsync(a => a.UserId == userId))
+                    else if (!await _context.Addresses.AnyAsync(item => item.UserId == userId))
                     {
                         address.IsDefault = true;
                     }
-                }
 
-                _context.Add(address);
-                await _context.SaveChangesAsync();
+                    _context.Add(address);
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                });
 
-                if (!string.IsNullOrEmpty(returnUrl))
+                if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                 {
                     return LocalRedirect(returnUrl);
                 }
@@ -98,15 +103,21 @@ namespace EcommerceApp.Controllers
                 return NotFound();
             }
 
-            var currentDefault = await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == userId && a.IsDefault);
-            if (currentDefault != null)
+            var strategy = _context.Database.CreateExecutionStrategy();
+            await strategy.ExecuteAsync(async () =>
             {
-                currentDefault.IsDefault = false;
-            }
+                await using var transaction =
+                    await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
 
-            address.IsDefault = true;
-            await _context.SaveChangesAsync();
+                await _context.Addresses
+                    .Where(item => item.UserId == userId && item.IsDefault && item.Id != id)
+                    .ExecuteUpdateAsync(update => update.SetProperty(item => item.IsDefault, false));
 
+                address.IsDefault = true;
+                _context.Entry(address).Property(item => item.IsDefault).IsModified = true;
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            });
             return RedirectToAction(nameof(Index));
         }
 
@@ -119,8 +130,32 @@ namespace EcommerceApp.Controllers
 
             if (address != null)
             {
-                _context.Addresses.Remove(address);
-                await _context.SaveChangesAsync();
+                var wasDefault = address.IsDefault;
+                var strategy = _context.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    await using var transaction =
+                        await _context.Database.BeginTransactionAsync(IsolationLevel.Serializable);
+
+                    _context.Addresses.Remove(address);
+                    await _context.SaveChangesAsync();
+
+                    if (wasDefault)
+                    {
+                        var replacement = await _context.Addresses
+                            .Where(item => item.UserId == userId)
+                            .OrderBy(item => item.Id)
+                            .FirstOrDefaultAsync();
+
+                        if (replacement != null)
+                        {
+                            replacement.IsDefault = true;
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+
+                    await transaction.CommitAsync();
+                });
             }
             
             return RedirectToAction(nameof(Index));

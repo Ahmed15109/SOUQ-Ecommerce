@@ -3,7 +3,6 @@
 @{
     ViewData["Title"] = "المفضلة";
 }
-
 <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
         <li class="breadcrumb-item"><a href="/" class="text-decoration-none">الرئيسية</a></li>
@@ -41,10 +40,22 @@ else
                     <div class="card-body pt-0">
                         <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
                          <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fs-5 fw-bold text-primary">$@product.Price</span>
-                            <button class="btn btn-primary rounded-circle btn-sm p-2">
-                                <i class="bi bi-plus-lg"></i>
-                            </button>
+                            <span class="fs-5 fw-bold text-primary">
+                                @((product.SellingMode == SellingMode.ByWeight ? product.PricePerKg : product.Price).ToString("N2")) ج.م
+                            </span>
+                            @if (product.SellingMode == SellingMode.ByWeight)
+                            {
+                                <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id"
+                                   class="btn btn-warning rounded-circle btn-sm p-2">
+                                    <i class="bi bi-basket"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <button class="btn btn-primary rounded-circle btn-sm p-2 add-to-cart-btn" data-id="@product.Id">
+                                    <i class="bi bi-plus-lg"></i>
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -52,9 +63,3 @@ else
         }
     </div>
 }
-
-<style>
-    .footer-margin {
-        margin-bottom: 5rem;
-    }
-</style>

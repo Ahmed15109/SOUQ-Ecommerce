@@ -58,7 +58,7 @@
                                 <span></span> 
                             }
                             
-                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" onsubmit="return confirm('هل أنت متأكد من حذف هذا العنوان؟');">
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post" class="d-inline" data-confirm="هل أنت متأكد من حذف هذا العنوان؟">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">
                                     <i class="bi bi-trash"></i> حذف
                                 </button>

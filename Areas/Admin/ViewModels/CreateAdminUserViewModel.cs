@@ -5,6 +5,7 @@ namespace EcommerceApp.Areas.Admin.ViewModels
     public class CreateAdminUserViewModel
     {
         [Required]
+        [MaxLength(100)]
         [Display(Name = "Full Name")]
         public string FullName { get; set; } = string.Empty;
 
@@ -14,6 +15,7 @@ namespace EcommerceApp.Areas.Admin.ViewModels
 
         [Required]
         [DataType(DataType.Password)]
+        [StringLength(100, MinimumLength = 8)]
         public string Password { get; set; } = string.Empty;
 
         [DataType(DataType.Password)]

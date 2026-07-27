@@ -24,11 +24,12 @@
                     <p><strong>الاسم:</strong> @Model.FullName</p>
                     <p><strong>الهاتف:</strong> @Model.UserPhone</p>
                     <p><strong>العنوان:</strong> @Model.Address</p>
-                    <p><strong>تاريخ الطلب:</strong> @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</p>
+                    <p><strong>تاريخ الطلب:</strong> @Model.CreatedAt.ToCairoTime().ToString("yyyy/MM/dd HH:mm")</p>
                     
                     <hr />
                     <form asp-action="UpdateStatus" method="post" class="row g-2 align-items-center">
                         <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="rowVersion" value="@Convert.ToBase64String(Model.RowVersion)" />
                         <div class="col-auto">
                             <label class="fw-bold">تحديث الحالة:</label>
                         </div>
@@ -53,9 +54,14 @@
                 <div class="card-body text-center">
                     @if (!string.IsNullOrEmpty(Model.PrescriptionImagePath))
                     {
-                        <img src="@Model.PrescriptionImagePath" class="img-fluid rounded" style="max-height: 300px;" alt="صورة الروشتة" />
+                        @if (!Model.PrescriptionImagePath.EndsWith(".pdf", StringComparison.OrdinalIgnoreCase))
+                        {
+                            <img src="@Url.Action("DownloadPrescription", "PharmacyRequests", new { area = "", id = Model.Id })"
+                                 class="img-fluid rounded" style="max-height: 300px;" alt="صورة الروشتة" />
+                        }
                         <div class="mt-3">
-                            <a href="@Model.PrescriptionImagePath" target="_blank" class="btn btn-primary btn-sm">
+                            <a href="@Url.Action("DownloadPrescription", "PharmacyRequests", new { area = "", id = Model.Id })"
+                               target="_blank" rel="noopener" class="btn btn-primary btn-sm">
                                 <i class="bi bi-arrows-fullscreen"></i> عرض بحجم كامل
                             </a>
                         </div>

@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "أمان الحساب";
+    var enabled = ViewData["TwoFactorEnabled"] as bool? == true;
+    var canEnable = ViewData["CanEnableTwoFactor"] as bool? == true;
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">أمان الحساب</h2>
+                    <p>المصادقة الثنائية: <strong>@(enabled ? "مفعلة" : "غير مفعلة")</strong></p>
+                    @if (!enabled && !canEnable)
+                    {
+                        <p class="text-muted">يجب تأكيد البريد الإلكتروني وتهيئة خدمة البريد لتفعيلها.</p>
+                    }
+                    <form asp-action="SetTwoFactor" method="post">
+                        <input type="hidden" name="enabled" value="@(!enabled ? "true" : "false")" />
+                        <button type="submit" class="btn @(enabled ? "btn-outline-danger" : "btn-primary")"
+                                disabled="@(!enabled && !canEnable)">
+                            @(enabled ? "تعطيل المصادقة الثنائية" : "تفعيل المصادقة الثنائية")
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

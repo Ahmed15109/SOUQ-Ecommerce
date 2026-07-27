@@ -41,10 +41,19 @@
                         }
                         <div class="card-body">
                             <h6 class="card-title text-truncate" title="@product.Name">@product.Name</h6>
-                            <p class="card-text fw-bold text-primary">@product.Price.ToString("C")</p>
+                            <p class="card-text fw-bold text-primary">
+                                @if (product.SellingMode == SellingMode.ByWeight)
+                                {
+                                    <span>@product.PricePerKg.ToString("N2") ج.م/كجم</span>
+                                }
+                                else
+                                {
+                                    <span>@product.Price.ToString("N2") ج.م</span>
+                                }
+                            </p>
                             <div class="d-flex justify-content-between">
                                 <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id" class="btn btn-sm btn-outline-primary w-100 me-1">تعديل</a>
-                                <form asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" method="post" class="w-100" onsubmit="return confirm('هل أنت متأكد من حذف هذا المنتج؟');">
+                                <form asp-controller="Products" asp-action="Delete" asp-route-id="@product.Id" method="post" class="w-100" data-confirm="هل أنت متأكد من حذف هذا المنتج؟">
                                     <button type="submit" class="btn btn-sm btn-outline-danger w-100">حذف</button>
                                 </form>
                             </div>

@@ -1,4 +1,5 @@
 
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EcommerceApp.Models
@@ -11,12 +12,16 @@ namespace EcommerceApp.Models
         public Order Order { get; set; } = null!;
 
         public int ProductId { get; set; }
+        [MaxLength(150)]
         public string ProductName { get; set; } = string.Empty;
         
         [Column(TypeName = "decimal(18,2)")]
         public decimal UnitPrice { get; set; }
         
+        [Range(1, 100)]
         public int Quantity { get; set; }
+
+        [MaxLength(500)]
         public string ImageUrl { get; set; } = string.Empty;
 
         [Column(TypeName = "decimal(18,2)")]
@@ -28,7 +33,7 @@ namespace EcommerceApp.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal? SelectedPricePerKg { get; set; }
 
-        public bool? CuttingSelected { get; set; }
+        public bool CuttingSelected { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal CuttingFeeApplied { get; set; }

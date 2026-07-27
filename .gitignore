@@ -8,6 +8,9 @@
 # Build results
 bin/
 obj/
+publish-check/
+artifacts/
+tmp/
 
 # Rider
 .idea/
@@ -24,3 +27,31 @@ node_modules/
 
 # Environment
 appsettings.Production.json
+.env
+.env.*
+*.pfx
+*.snk
+
+# Data
+*.db
+*.db-shm
+*.db-wal
+
+# Storage
+SecureUploads/
+wwwroot/uploads/
+
+# Local migration and verification outputs
+/migration.sql
+/migration-review.sql
+/POST_REMEDIATION_VERIFICATION.md
+/migration-preflight-output.txt
+/pharmacy-attachment-manifest.txt
+/pharmacy-attachment-*.log
+
+# Tests
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+*.cobertura.xml

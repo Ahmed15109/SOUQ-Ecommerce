@@ -5,14 +5,23 @@
 }
 
 <section class="hero-section rounded-3 overflow-hidden mb-5 position-relative">
-    <div class="container h-100">
-        <div class="row h-100 align-items-center p-4 p-lg-5">
-            <div class="col-md-6 z-1">
-                <span class="badge bg-warning text-dark mb-2 px-3 py-2 fw-bold">عرض أسبوعي</span>
-                <h1 class="display-6 display-md-4 fw-bold text-white mb-3">بقوليات طازجة <br> تصل لباب منزلك</h1>
-                <p class="lead text-white-50 mb-4 fs-6 fs-md-5">احصل على خصم 15% على طلبك الأول باستخدام الكود: FRESH20</p>
-                <button class="btn btn-light btn-lg rounded-pill px-4 px-md-5 fw-bold text-primary shadow-sm hover-scale">تسوق الآن</button>
-            </div>
+    <div class="hero-decoration hero-decoration-dots" aria-hidden="true"></div>
+    <div class="hero-decoration hero-decoration-ring" aria-hidden="true"></div>
+    <div class="hero-floating-shape hero-floating-basket" aria-hidden="true">
+        <i class="bi bi-basket2-fill"></i>
+    </div>
+
+    <div class="hero-inner">
+        <div class="hero-content">
+            <span class="hero-kicker">عرض أسبوعي</span>
+            <h1>بقوليات طازجة <br> تصل لباب منزلك</h1>
+            <p>منتجات مختارة بعناية وتوصيل حتى باب المنزل.</p>
+            <a asp-controller="Products" asp-action="Index" class="hero-cta">
+                <span>تسوق الآن</span>
+                <span class="hero-cta-icon" aria-hidden="true">
+                    <i class="bi bi-arrow-left"></i>
+                </span>
+            </a>
         </div>
     </div>
 </section>
@@ -63,99 +72,47 @@
     </div>
 
     <div class="row g-3 justify-content-center">
-        @foreach (var cat in Model.Categories)
+        @foreach (var category in Model.Categories)
         {
-            var iconClass = "bi bi-tag";
-            var bgStyle = "";
-            var iconStyle = "";
-
-            if (cat.IsCore)
-            {
-                 var name = cat.Name?.ToLower() ?? "";
-                 if (name.Contains("خضار") || name.Contains("فواكه")) {
-                     iconClass = "bi-basket3-fill";
-                     bgStyle = "background-color: rgba(25, 135, 84, 0.12) !important;";
-                     iconStyle = "color: #198754 !important;";
-                 } else if (name.Contains("سوبر") || name.Contains("ماركت")) {
-                     iconClass = "bi-basket2-fill";
-                     bgStyle = "background-color: rgba(13, 202, 240, 0.12) !important;";
-                     iconStyle = "color: #0dcaf0 !important;";
-                 } else if (name.Contains("صيدل")) {
-                     iconClass = "bi-capsule";
-                     bgStyle = "background-color: rgba(220, 53, 69, 0.12) !important;";
-                     iconStyle = "color: #dc3545 !important;";
-                 } else if (name.Contains("مطاعم") || name.Contains("مطعم")) {
-                     iconClass = "bi-egg-fried";
-                     bgStyle = "background-color: rgba(255, 193, 7, 0.15) !important;";
-                     iconStyle = "color: #ffc107 !important;";
-                 } else {
-                     iconClass = "bi-star-fill";
-                     bgStyle = "background-color: rgba(13, 110, 253, 0.12) !important;";
-                     iconStyle = "color: #0d6efd !important;";
-                 }
-            }
-            else if (!string.IsNullOrEmpty(cat.IconClass))
-            {
-               iconClass = cat.IconClass;
-               if (!string.IsNullOrEmpty(cat.IconColor)) iconStyle = $"color: {cat.IconColor} !important;";
-               if (!string.IsNullOrEmpty(cat.IconBgColor)) bgStyle = $"background-color: {cat.IconBgColor} !important;";
-            }
-            else if (!string.IsNullOrEmpty(cat.IconKey))
-            {
-                var key = cat.IconKey.ToLower();
-                switch (key)
-                {
-                    case "produce":
-                        iconClass = "bi-basket3-fill";
-                        bgStyle = "background-color: rgba(25, 135, 84, 0.12) !important;";
-                        iconStyle = "color: #198754 !important;";
-                        break;
-                    case "supermarket":
-                        iconClass = "bi-basket2-fill";
-                        bgStyle = "background-color: rgba(13, 202, 240, 0.12) !important;";
-                        iconStyle = "color: #0dcaf0 !important;";
-                        break;
-                    case "pharmacy":
-                        iconClass = "bi-capsule";
-                        bgStyle = "background-color: rgba(220, 53, 69, 0.12) !important;";
-                        iconStyle = "color: #dc3545 !important;";
-                        break;
-                     case "restaurant":
-                        iconClass = "bi-egg-fried";
-                        bgStyle = "background-color: rgba(255, 193, 7, 0.15) !important;";
-                        iconStyle = "color: #ffc107 !important;";
-                        break;
-                    default:
-                         bgStyle = "background-color: rgba(108, 117, 125, 0.12) !important;";
-                         iconStyle = "color: #6c757d !important;";
-                        break;
-                }
-            }
-            else
-            {
-                 bgStyle = "background-color: rgba(108, 117, 125, 0.12) !important;";
-                 iconStyle = "color: #6c757d !important;";
-            }
-
-            var cardHref = "/Products?categoryId=" + cat.Id;
-            if (cat.Name == "Pharmacy" || (cat.IconKey != null && cat.IconKey.Equals("pharmacy", StringComparison.OrdinalIgnoreCase)))
-            {
-                cardHref = "/PharmacyRequests/Create";
-            }
+            var iconStyle = string.IsNullOrWhiteSpace(category.IconColor)
+                ? null
+                : $"color: {category.IconColor} !important;";
+            var backgroundStyle = string.IsNullOrWhiteSpace(category.IconBackgroundColor)
+                ? null
+                : $"background-color: {category.IconBackgroundColor} !important;";
 
             <div class="col-6 col-md-3">
-                <a href="@cardHref" class="text-decoration-none">
+                @if (category.LinksToPharmacyRequests)
+                {
+                <a asp-controller="PharmacyRequests" asp-action="Create" class="text-decoration-none">
                     <div class="category-card-simple text-center p-4 rounded-3 bg-white h-100">
-                        <div class="mb-3 d-inline-flex justify-content-center align-items-center rounded-circle mx-auto" 
-                             style="width: 80px; height: 80px; @bgStyle">
-                             <i class="@iconClass fs-1" style="@iconStyle"></i>
+                        <div class="category-icon-bg @category.ThemeClass mb-3 d-inline-flex justify-content-center align-items-center mx-auto"
+                             style="@backgroundStyle">
+                            <i class="@category.IconClass fs-1" style="@iconStyle"></i>
                         </div>
-                        <h6 class="fw-bold text-dark mb-0">@cat.Name</h6>
+                        <h6 class="fw-bold text-dark mb-0">@category.Name</h6>
+                        <span class="category-arrow text-primary small mt-2 d-block">
+                            اطلب من الصيدلية <i class="bi bi-arrow-left"></i>
+                        </span>
+                    </div>
+                </a>
+                }
+                else
+                {
+                <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id"
+                   class="text-decoration-none">
+                    <div class="category-card-simple text-center p-4 rounded-3 bg-white h-100">
+                        <div class="category-icon-bg @category.ThemeClass mb-3 d-inline-flex justify-content-center align-items-center mx-auto"
+                             style="@backgroundStyle">
+                            <i class="@category.IconClass fs-1" style="@iconStyle"></i>
+                        </div>
+                        <h6 class="fw-bold text-dark mb-0">@category.Name</h6>
                         <span class="category-arrow text-primary small mt-2 d-block">
                             تسوق الآن <i class="bi bi-arrow-left"></i>
                         </span>
                     </div>
                 </a>
+                }
             </div>
         }
     </div>
@@ -164,7 +121,7 @@
 <div class="mb-5">
     <div class="d-flex justify-content-between align-items-center mb-2">
         <h3 class="fw-bold m-0">منتجات مميزة</h3>
-        <a href="#" class="btn btn-outline-primary rounded-pill px-4">عرض الكل</a>
+        <a asp-controller="Products" asp-action="Index" class="btn btn-outline-primary rounded-pill px-4">عرض الكل</a>
     </div>
     
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-4 g-4">
@@ -189,11 +146,15 @@
                     </div>
                     <div class="card-body pt-0">
                         <p class="text-muted small mb-1">
-                            @(Model.Categories.FirstOrDefault(c => c.Id == product.CategoryId)?.Name ?? "Category")
+                            @(Model.CategoryNames.GetValueOrDefault(product.CategoryId) ?? "قسم")
                         </p>
                         <h6 class="card-title fw-bold text-truncate">@product.Name</h6>
                         <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="fs-5 fw-bold text-primary">$@product.Price</span>
+                            <span class="fs-5 fw-bold text-primary">
+                                @((product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight
+                                    ? product.PricePerKg
+                                    : product.Price).ToString("N2")) ج.م
+                            </span>
                             @if(product.SellingMode == EcommerceApp.Models.SellingMode.ByWeight)
                             {
                                 <a asp-controller="Products" asp-action="ConfigureWeight" asp-route-id="@product.Id" class="btn btn-warning btn-sm rounded-pill px-3 text-white">

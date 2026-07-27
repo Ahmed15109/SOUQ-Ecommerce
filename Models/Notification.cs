@@ -8,9 +8,11 @@ namespace EcommerceApp.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(150)]
         public string Title { get; set; } = string.Empty;
 
         [Required]
+        [MaxLength(1000)]
         public string Message { get; set; } = string.Empty;
 
         public string? UserId { get; set; }
@@ -26,6 +28,8 @@ namespace EcommerceApp.Models
         public int? PharmacyRequestId { get; set; }
         public PharmacyRequest? PharmacyRequest { get; set; }
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public ICollection<NotificationRead> Reads { get; set; } = new List<NotificationRead>();
     }
 }

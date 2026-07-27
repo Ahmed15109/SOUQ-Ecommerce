@@ -1,0 +1,30 @@
+@model EcommerceApp.ViewModels.ResendConfirmationViewModel
+@{
+    ViewData["Title"] = "إعادة إرسال تأكيد البريد";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">إعادة إرسال تأكيد البريد</h2>
+                    <p class="text-muted">أدخل البريد المستخدم عند إنشاء الحساب.</p>
+                    <form asp-action="ResendConfirmation" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label">البريد الإلكتروني</label>
+                            <input asp-for="Email" class="form-control" autocomplete="email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">إرسال رسالة التأكيد</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
