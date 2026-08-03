@@ -10,10 +10,6 @@ namespace EcommerceApp.Constants
         public const int MaxPageSize = 100;
         public const long MaxUploadRequestSizeBytes = 6 * 1024 * 1024;
 
-        /// <summary>
-        /// A reasonable global safety ceiling for products that do not define a specific MaxKg.
-        /// Provides protection against absurdly large inputs that would overflow decimal calculations or represent impossible real-world orders.
-        /// </summary>
         public const decimal MaxWeightSafetyCeilingKg = 1000m;
     }
 }
