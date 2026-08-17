@@ -4,9 +4,9 @@
     "net9.0": {
       "Microsoft.AspNetCore.Authentication.Google": {
         "type": "Direct",
-        "requested": "[9.0.18, )",
-        "resolved": "9.0.18",
-        "contentHash": "ehuDDcCqQil85GoXNhuWZV5DGndamASHMw7TR4VJf+FtCVb7K3RWpx8LqJH8Q/ovAJBnQUECCO7Jyergb7NNog=="
+        "requested": "[9.0.19, )",
+        "resolved": "9.0.19",
+        "contentHash": "A3LyPGUP+WToePAlrHc4r+sAKHjO+YMN5HD8p9IOaMRpt93NPMwtVgNH9HfX/ViJYa6BdoYwvyGPolO7xDhslg=="
       },
       "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
         "type": "Direct",
